@@ -2,6 +2,7 @@ import FileItem from './FileList/FileItem';
 import EmptyState from './FileList/EmptyState';
 
 const FileList = ({ filteredFiles, selectedFiles, handleSelectFile, handleLoadFile, handlePreview, setSelectedFiles, currentFile, currentGist}) => {
+
   if (filteredFiles.length === 0) {
     return <EmptyState message="Tidak ada file yang ditemukan" />;
   }

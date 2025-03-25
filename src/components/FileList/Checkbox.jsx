@@ -1,6 +1,6 @@
 const Checkbox = ({ isChecked, onChange }) => {
 return (
-    <label className="inline-flex items-center cursor-pointer">
+    <label onClick={(e) => e.stopPropagation()} className="inline-flex items-center cursor-pointer">
     <input
         type="checkbox"
         checked={isChecked}

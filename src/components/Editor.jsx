@@ -18,7 +18,10 @@ export default function Editor({ folderName, gistId, fileName, content, onSave, 
    // Tangani event Ctrl + S
    useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.ctrlKey && e.key === 's') {
+
+      if (e.key === "Escape") {
+        onClose(); // Tutup editor saat Esc ditekan
+      } else if (e.ctrlKey && e.key === 's') {
         e.preventDefault(); // Mencegah aksi default browser
         onSave(value);
         // onSave(textareaRef.current.value);

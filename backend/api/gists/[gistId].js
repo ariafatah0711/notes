@@ -20,9 +20,28 @@ export default async function handler(req, res) {
     switch (req.method) {
       case "GET":
         response = await fetch(GITHUB_API, { headers });
+
+        /* debug error response */
+        // if (response.ok) {
+        //   const errorMessage = {};
+        //   return res.status(response.status).json({
+        //     status: response.status,
+        //     error: errorMessage?.message || "Failed to fetch Gist",
+        //   });
+        // }
+
+        if (!response.ok) {
+          const errorMessage = await response.json().catch(() => ({}));
+
+          return res.status(response.status).json({
+            status: response.status,
+            error: errorMessage?.message || "Failed to fetch Gist",
+          });
+        }
+
         const data = await response.json();
         const folderName = parseFolder(data);
-        return res.status(response.status).json({ ...data, folderName });
+        return res.status(200).json({ ...data, folderName });
       case "PATCH":
       case "DELETE":
         response = await fetch(GITHUB_API, {

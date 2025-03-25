@@ -15,8 +15,10 @@ export function useFileContext() {
   const [filteredFiles, setFilteredFiles] = useState([]);
 
   useEffect(() => {
+    if (!Array.isArray(gists)) return;
+
     const gist = gists.find((g) => g.id === folderName);
-    setCurrentGist(gist);
+    setCurrentGist(gist || null);
     setFilteredFiles(Object.keys(gist?.files || {}));
   }, [gists, folderName]);
 

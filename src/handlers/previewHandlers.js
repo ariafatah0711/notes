@@ -128,7 +128,7 @@ export const handlePreview = async (fileContent = null, fileName = null, current
       title: "preview",
       html: `
           <style>${styles}</style>
-          <div  class="h-full bg-[#f8f8f8] overflow-auto text-left p-2 sm:p-3 md:p-4 border-gray-300 rounded-md shadow-md mx-2 sm:mx-3 md:mx-4 box-border">
+          <div id="preview-teks" class="h-full bg-[#f8f8f8] overflow-auto text-left p-2 sm:p-3 md:p-4 border-gray-300 rounded-md shadow-md mx-2 sm:mx-3 md:mx-4 box-border">
             <pre id="font_size_prev" class="h-full m-0 text-[10px] sm:text-base md:text-lg font-mono whitespace-pre-wrap break-words border-none">${escapedContent}</pre>
           </div>
         `,
@@ -140,12 +140,13 @@ export const handlePreview = async (fileContent = null, fileName = null, current
       confirmButtonText: "+",
       denyButtonText: "-",
       cancelButtonText: "Tutup",
+      allowEscapeKey: true,
       customClass: {
         popup: "fullscreen-popup",
       },
       didRender: () => {
         const copyButton = document.createElement("button");
-        copyButton.innerText = "Salin Isi File";
+        copyButton.innerText = "Salin";
         copyButton.className = "swal2-confirm swal2-styled";
         copyButton.addEventListener("click", async () => {
           try {

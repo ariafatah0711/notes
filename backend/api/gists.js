@@ -20,9 +20,17 @@ export default async function handler(req, res) {
 
   try {
     const existingGistsRes = await fetch(GITHUB_API, { headers });
+
+    /* debug error response */
+    // if (existingGistsRes.ok) {
     if (!existingGistsRes.ok) {
-      return res.status(existingGistsRes.status).json({ error: "Failed to fetch existing Gists" });
+      const errorMessage = await existingGistsRes.json().catch(() => ({}));
+      return res.status(existingGistsRes.status).json({
+        status: existingGistsRes.status,
+        error: errorMessage?.message || "Failed to fetch Gist",
+      });
     }
+
     const existingGists = await existingGistsRes.json();
 
     switch (req.method) {

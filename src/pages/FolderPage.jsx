@@ -1,6 +1,5 @@
 /* react */
 import { useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
 import { AiOutlineFileText, AiOutlineAppstoreAdd, AiOutlineDelete } from "react-icons/ai";
 import { useFileContext } from "../hooks/useFileContext";
 import { fetchGist, updateGist } from "../services/api";
@@ -39,8 +38,11 @@ export default function FolderPage() {
     setFileContent,
     setSelectedFiles,
     navigate,
-    reload,
+    reload
+    ,
   } = useFileContext();
+
+  // console.log(gists)
 
   useEffect(() => {
     setFilteredFiles(Object.keys(currentGist?.files || {}));
@@ -77,6 +79,37 @@ export default function FolderPage() {
     };
   }, [currentFile, currentGist]);
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (["INPUT", "TEXTAREA"].includes(e.target.tagName)) return;
+  
+      if (
+        (e.ctrlKey && e.code === "KeyR") ||
+        e.code === "F5" ||
+        (e.ctrlKey && e.shiftKey && e.code === "KeyR")
+      ) {
+        return;
+      }
+  
+      const actions = {
+        KeyN: () => currentGist && handleAddFile({ currentGist, updateGist, navigate }),
+        KeyB: () => currentGist && handleAddBatchFiles({ currentGist }),
+        KeyD: () => currentGist && selectedFiles.length && handleDeleteSelectedFiles({ selectedFiles, currentGist, setSelectedFiles }),
+      };
+  
+      if (actions[e.code]) {
+        e.preventDefault();
+        e.stopPropagation();
+        actions[e.code]();
+      }
+    };
+  
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [currentGist, updateGist, navigate, selectedFiles, setSelectedFiles, handleAddFile, handleAddBatchFiles, handleDeleteSelectedFiles]);
+
   const handleLoadFile = useCallback(async (fileName) => {
     if (fileName === currentFile) return;
     const gist = await fetchGist(currentGist.id);
@@ -85,15 +118,18 @@ export default function FolderPage() {
     navigate(`#${encodeURIComponent(fileName)}`, { replace: true });
   }, [currentFile, currentGist, navigate]);
 
-  return currentGist ? (
+  return (
     <div className="p-4">
       <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-        <a href={import.meta.env.BASE_URL}
-          className="text-blue-500 font-medium hover:underline inline-block truncate overflow-hidden whitespace-nowrap">{folderName}
+        <a
+          href={import.meta.env.BASE_URL}
+          className="text-blue-500 font-medium hover:underline inline-block truncate overflow-hidden whitespace-nowrap"
+        >
+          {folderName}
         </a>
       </h2>
 
-      {currentFile && currentGist && currentGist.files[currentFile] ? (
+      {currentFile && currentGist?.files?.[currentFile] ? (
         <div className="w-full fixed inset-0 bg-gray-500 bg-opacity-50 flex z-50">
           <div className="relative bg-white w-full p-4 shadow-lg">
             <Editor
@@ -101,54 +137,65 @@ export default function FolderPage() {
               gistId={currentGist.id}
               fileName={currentFile}
               content={fileContent}
-              onSave={(content) => handleSave(content, { currentGist, currentFile, setFileContent })}
+              onSave={(content) => handleSave(content, { currentGist, currentFile, setFileContent, reload })}
               onPreview={(value) => handlePreview(value)}
               onClose={() => {
                 setCurrentFile("");
                 navigate(".", { replace: true });
               }}
-              onEdit={(fileName) => {
-                const id = currentGist?.id;
-                handleEdit( fileName, {id, navigate, reload });
-              }}
-               onDeleteFile={() => handleDeleteFile({ currentGist, currentFile, setCurrentFile, navigate, reload })}
+              onEdit={(fileName) => handleEdit(fileName, { id: currentGist?.id, navigate,  })}
+              onDeleteFile={() => handleDeleteFile({ currentGist, currentFile, setCurrentFile, navigate, reload })}
             />
           </div>
         </div>
-      ) : (
-        <span></span>
-      )}
+      ) : null}
 
       <div className="flex flex-wrap gap-4 justify-left pb-4">
-        <SearchBar
+        {/* <SearchBar
           placeholder="Cari file..."
           data={Object.keys(currentGist?.files || {})}
           onSearch={setFilteredFiles}
+        /> */}
+        <IconButton
+          onClick={() => handleAddFile({ currentGist, updateGist, navigate, reload })}
+          icon={AiOutlineFileText}
+          label="Tambah File"
+          color="blue"
         />
-        <IconButton onClick={() => handleAddFile({ currentGist, updateGist, navigate, reload })} icon={AiOutlineFileText} label="Tambah File" color="blue" />
-        <IconButton onClick={() => handleAddBatchFiles({ currentGist, reload })} icon={AiOutlineAppstoreAdd} label="Batch File" color="green" />
-        <IconButton onClick={() => handleDeleteSelectedFiles({ selectedFiles, currentGist, setSelectedFiles, reload })}
-          icon={AiOutlineDelete} label="Hapus File" color="red" />
+        <IconButton
+          onClick={() => handleAddBatchFiles({ currentGist, reload })}
+          icon={AiOutlineAppstoreAdd}
+          label="Batch File"
+          color="green"
+        />
+        <IconButton
+          onClick={() => handleDeleteSelectedFiles({ selectedFiles, currentGist, setSelectedFiles, reload })}
+          icon={AiOutlineDelete}
+          label="Hapus File"
+          color="red"
+        />
       </div>
 
-      <FileList
-        filteredFiles={filteredFiles}
-        selectedFiles={selectedFiles}
-        handleSelectFile={handleSelectFile}
-        handleLoadFile={handleLoadFile}
-        handlePreview={handlePreview}
-        setSelectedFiles={setSelectedFiles}
-        currentFile={currentFile}
-        currentGist={currentGist}
-      />
-
-    </div>
-  ) : (
-    <div className="flex flex-col items-center justify-center h-64">
-      <p className="text-lg text-gray-500">Folder tidak ditemukan...</p>
-      <Link to="/" className="mt-2 text-blue-500 hover:underline">
-        Kembali ke daftar folder
-      </Link>
+      {currentGist ? (
+        <FileList
+          filteredFiles={filteredFiles}
+          selectedFiles={selectedFiles}
+          handleSelectFile={handleSelectFile}
+          handleLoadFile={handleLoadFile}
+          handlePreview={handlePreview}
+          setSelectedFiles={setSelectedFiles}
+          currentFile={currentFile}
+          currentGist={currentGist}
+        />
+      ) : (
+        <p className="text-gray-500">
+          {gists?.error
+            ? `${gists.status}, ${gists.error}`
+            : 'Folder Tidak Ditemukan'}
+          {' '}
+          <a href={import.meta.env.BASE_URL} className="text-blue-500 hover:underline">Back...</a>
+        </p>
+      )}
     </div>
   );
 }

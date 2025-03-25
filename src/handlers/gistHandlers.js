@@ -27,7 +27,8 @@ export const handleEditGist = async (id, oldName, reload) => {
   const { value: newName } = await Swal.fire({
     title: "Edit nama folder:",
     input: "text",
-    inputValue: oldName,
+    // inputValue: oldName,
+    inputValue: "",
     showCancelButton: true,
   });
 
