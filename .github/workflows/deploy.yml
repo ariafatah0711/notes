@@ -9,9 +9,17 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    env:
+      VERSION_PREFIX: "1"
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Informasion
+        run: |
+          echo "COMMIT_NUMBER=$(git rev-list --count HEAD)" >> $GITHUB_ENV
+          echo "VITE_VERSION=$VERSION_PREFIX.$COMMIT_NUMBER" >> $GITHUB_ENV
+          echo "Version: $VERSION_PREFIX.$COMMIT_NUMBER"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -25,6 +33,7 @@ jobs:
         run: |
           echo "VITE_NOTES_PASSWORD=${{ secrets.VITE_NOTES_PASSWORD }}" >> .env
           echo "VITE_API_DOMAIN=${{ vars.VITE_API_DOMAIN }}" >> .env
+          echo "VITE_VERSION=$VITE_VERSION" >> .env
 
       - name: Build Project
         run: npm run build
