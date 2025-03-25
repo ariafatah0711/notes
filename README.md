@@ -36,6 +36,7 @@ Tambahkan file `.env` di root folder dengan isi seperti ini:
 
 ```
 VITE_NOTES_PASSWORD=<pass>
+VITE_API_DOMAIN=https://api.notes.com/api
 ```
 
 ## Backend
