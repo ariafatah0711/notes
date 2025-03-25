@@ -1,0 +1,22 @@
+{
+    "name": "notes-backend",
+    "version": "1.0.0",
+    "description": "Backend untuk aplikasi Notes menggunakan GitHub Gists API.",
+    "main": "api/gists.js",
+    "type": "module",
+    "scripts": {
+        "dev": "vercel dev",
+        "start": "node api/gists.js"
+    },
+    "dependencies": {
+        "node-fetch": "^3.3.2"
+    },
+    "devDependencies": {
+        "vercel": "^41.4.1"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "author": "Aria Fatah",
+    "license": "MIT"
+}
