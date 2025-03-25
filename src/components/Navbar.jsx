@@ -4,7 +4,7 @@ import { FiLogIn, FiLogOut, FiUser } from 'react-icons/fi';
 
 import IconButton from "./IconButton";
 
-import { versionApp } from "../config";
+import packageJson from "../../package.json"
 import GlobalSwal from "../utils/GlobalSwal";
 const Swal = GlobalSwal;
 
@@ -58,7 +58,7 @@ function Navbar() {
   return (
 <nav className="p-4 bg-gray-100 flex justify-between items-center shadow-md">
   <a href="/" className="text-blue-500 hover:underline">
-    <h3 className="text-lg font-semibold">notes_aria v{versionApp}</h3>
+    <h3 className="text-lg font-semibold">{packageJson.name} v{packageJson.version}</h3>
   </a>
   {loggedIn ? (
     <div className="flex items-center gap-4">
