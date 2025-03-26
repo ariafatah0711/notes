@@ -1,27 +1,5 @@
 import { apiDomain } from "../config";
-import GlobalSwal from "../utils/GlobalSwal";
-const Swal = GlobalSwal;
-
-const handleApiError = ({ ok = false, status = 500, message = "Server Internal Error", swall = false, errorData = {} }) => {
-  console.error(`fetchGists: ${status} - ${message}`);
-  if (swall) Swal.fire("Error", `${status} ${message}`, "error");
-  return { ok, status, message, errorData };
-};
-
-const handleApiMessage = (message, swall = false) => {
-  console.info(message);
-  if (swall == "success") Swal.fire("Sukses", message, "success");
-  if (swall == "error") Swal.fire("Sukses", message, "error");
-};
-
-const handleErrorResponse = async (response, swall = false) => {
-  const errorData = await response.json().catch(() => ({}));
-  if (swall) Swal.fire("Error", `${errorData.status || 404} ${errorData.message || "Failed to fetch Gist"}`, "error");
-  return handleApiError({
-    status: errorData.status || response.status,
-    message: errorData.message || "Failed to fetch Gist",
-  });
-};
+import { handleApiError, handleApiMessage, handleErrorResponse } from "../handlers/apiHandlers";
 
 export const fetchGists = async () => {
   try {
@@ -50,6 +28,8 @@ export const fetchGist = async (id) => {
 };
 
 export const createGist = async (folderName) => {
+  if (!navigator.onLine) return handleApiError({ status: 404, message: "Tidak ada koneksi internet.", swall: true });
+
   try {
     const payload = {
       public: true,
@@ -76,6 +56,8 @@ export const createGist = async (folderName) => {
 };
 
 export const updateFolderGist = async (id, folderName, files) => {
+  if (!navigator.onLine) return handleApiError({ status: 404, message: "Tidak ada koneksi internet.", swall: true });
+
   try {
     const payload = { id, folderName, files };
     const response = await fetch(`${apiDomain}/gists`, {
@@ -90,26 +72,34 @@ export const updateFolderGist = async (id, folderName, files) => {
     handleApiMessage(`berhasil mengganti nama`, "success");
     return response.json();
   } catch (error) {
-    return handleApiError(500, "Server Internal Error", true);
+    return handleApiError({ status: 500, message: "Server Internal Error", swall: true });
   }
 };
 
 export const deleteGist = async (id) => {
+  if (!navigator.onLine) return handleApiError({ status: 404, message: "Tidak ada koneksi internet.", swall: true });
+
   try {
     // return await fetch(`${apiDomain}/gists/${id}`, { method: "DELETE" });
     const response = await fetch(`${apiDomain}/gists/${id}`, { method: "DELETE" });
 
-    if (!response.ok) return handleErrorResponse(response, true);
-
     handleApiMessage(`fetch (Success): POST ${apiDomain}/gists/${id} \ndeleteFolder: ${id}`);
-    // handleApiMessage(`berhasil menghapus folder`, "success");
-    return response;
+    console.log(response);
+    if (response.ok === true) {
+      handleApiMessage(`berhasil menghapus folder`, "success");
+    } else if (response.status === 404) {
+      throw new Error("error");
+    } else {
+      handleApiMessage(`gagal menghapus folder`, "error");
+    }
   } catch (error) {
-    return handleApiError(500, "Server Internal Error", true);
+    return handleApiError({ status: 500, message: "Server Internal Error", swall: true });
   }
 };
 
 export const updateGist = async (id, files) => {
+  if (!navigator.onLine) return handleApiError({ status: 404, message: "Tidak ada koneksi internet.", swall: true });
+
   try {
     const payload = { files };
     const response = await fetch(`${apiDomain}/gists/${id}`, {
@@ -118,12 +108,14 @@ export const updateGist = async (id, files) => {
       body: JSON.stringify(payload),
     });
 
+    console.log(response);
+
     if (!response.ok) return handleErrorResponse(response, true);
 
     handleApiMessage(`fetch (Success): POST ${apiDomain}/gists/${id} \nupdateFile: ${files}`);
     handleApiMessage(`berhasil mengedit file`, "success");
     return response.json();
   } catch (error) {
-    return handleApiError(500, "Server Internal Error", true);
+    return handleApiError({ status: 500, message: "Server Internal Error", swall: true });
   }
 };

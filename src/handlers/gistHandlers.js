@@ -1,12 +1,6 @@
 import { isLoggedIn } from "../utils/auth";
-import { createGist, deleteGist, updateFolderGist } from "../services/api";
+import { createGist, deleteGist, fetchGists, updateFolderGist } from "../services/api";
 import GlobalSwal from "../utils/GlobalSwal";
-
-const handleApiMessage = (message, swall = false) => {
-  console.info(message);
-  if (swall == "success") Swal.fire("Sukses", message, "success");
-  if (swall == "error") Swal.fire("Sukses", message, "error");
-};
 
 const Swal = GlobalSwal;
 
@@ -22,7 +16,8 @@ export const handleAddGist = async (reload) => {
   if (!folderName) return;
 
   const res = await createGist(folderName);
-  if (!res) return Swal.fire("Error", "Folder sudah ada", "error");
+  console.log(res);
+  if (res.status == 409) return Swal.fire("Error", "Folder sudah ada", "error");
 
   reload();
 };
@@ -40,8 +35,18 @@ export const handleEditGist = async (id, oldName, reload) => {
 
   if (!newName || newName === oldName) return;
 
+  const folder = await fetchGists();
   const res = await updateFolderGist(id, newName);
-  if (res.ok == false) return Swal.fire("Error", "Folder sudah ada", "error");
+
+  const folderExists = folder.some((item) => {
+    const folderName = JSON.parse(item.description)?.folderName; // Ambil folderName dari deskripsi (dalam format JSON)
+    return folderName === newName; // Cek jika folderName sudah ada yang sama dengan newName
+  });
+
+  console.log(folderExists);
+  if (folderExists) {
+    return Swal.fire("Error", "Folder dengan nama ini sudah ada", "error");
+  }
 
   reload();
 };
@@ -59,7 +64,6 @@ export const handleDeleteGist = async (id, reload) => {
 
   if (result.isConfirmed) {
     await deleteGist(id);
-    handleApiMessage(`berhasil menghapus folder`, "success");
     reload();
   }
 };
