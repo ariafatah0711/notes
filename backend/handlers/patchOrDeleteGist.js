@@ -7,8 +7,13 @@ export const handlePatchOrDelete = async (req, res, gistId) => {
     body: JSON.stringify(req.body),
   });
 
+  if (!response.ok) {
+    const errorMessage = await response.json().catch(() => ({ error: "Unknown Error" }));
+    return res.status(response.status).json(errorMessage);
+  }
+
   if (req.method === "DELETE") {
-    return res.status(response.status).end();
+    return res.status(response.status).json({ message: "Gist deleted successfully" });
   }
 
   const data = await response.json();

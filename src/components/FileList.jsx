@@ -7,11 +7,12 @@ const FileList = ({ filteredFiles, selectedFiles, handleSelectFile, handleLoadFi
   if (!hasFiles) {
     return <EmptyState message="Tidak ada file dalam folder ini" />;
   }
-
-  const displayFiles = filteredFiles.length === 0
-  ? Object.keys(currentGist.files || {}).filter((file) => file !== ".placeholder")
-  : filteredFiles;
-
+  
+  const displayFiles = (filteredFiles.length === 0
+    ? Object.keys(currentGist.files || {})
+    : filteredFiles
+  ).filter((file) => file !== ".placeholder");
+  
   if (displayFiles.length === 0) {
     return <EmptyState message="Tidak ada file yang cocok dengan pencarian" />;
   }
@@ -34,20 +35,6 @@ const FileList = ({ filteredFiles, selectedFiles, handleSelectFile, handleLoadFi
             fileUrl={`https://gist.githubusercontent.com/${currentGist.owner.login}/${currentGist.id}/raw/${fileName}`}
           />
       ))}
-      {/* {filteredFiles
-        .filter((fileName) => fileName !== ".placeholder")
-        .map((fileName) => (
-          <FileItem
-            key={fileName}
-            fileName={fileName}
-            isSelected={selectedFiles.includes(fileName)}
-            onSelect={() => handleSelectFile(fileName, setSelectedFiles)}
-            onLoad={() => handleLoadFile(fileName)}
-            onPreview={() => handlePreview(null, fileName, currentGist)}
-            isActive={currentFile === fileName}
-            fileUrl={`https://gist.githubusercontent.com/${currentGist.owner.login}/${currentGist.id}/raw/${fileName}`}
-          />
-        ))} */}
     </div>
   );
 };

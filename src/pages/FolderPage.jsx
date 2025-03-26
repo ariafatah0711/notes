@@ -115,12 +115,15 @@ export default function FolderPage() {
   const handleLoadFile = useCallback(async (fileName) => {
     if (fileName === currentFile) return;
     const gist = await fetchGist(currentGist.id);
-
+    console.log(currentGist.id)
     console.log(gist)
+    console.log(gist.files)
     console.log(fileName)
-    // console.log(content)
 
-    if (!gist.url) return;
+    if (!gist.files) {
+      console.error(`File "${fileName}" not found in Gist.`);
+      return;
+    }
 
     setCurrentFile(fileName);
     setFileContent(gist.files[fileName]?.content || "");

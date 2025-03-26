@@ -1,15 +1,28 @@
 import { GITHUB_API, headers } from "../utils/apiConfig.js";
 import { parseFolder } from "../utils/parse.js";
 
-export const handleGet = async (req, res) => {
-  const existingGistsRes = await fetch(GITHUB_API, { headers });
+export const handleGet = async (req, res, gistId) => {
+  const url = gistId ? `${GITHUB_API}/${gistId}` : GITHUB_API;
 
-  if (!existingGistsRes.ok) {
-    return res.status(existingGistsRes.status).send(await existingGistsRes.text());
+  const response = await fetch(url, { headers });
+
+  if (!response.ok) {
+    return res.status(response.status).send(await response.text());
   }
 
-  const existingGists = await existingGistsRes.json();
-  const gistsWithFolder = existingGists.map((gist) => ({
+  const data = await response.json();
+
+  if (gistId) {
+    if (data.files) {
+      data.files = Object.fromEntries(Object.entries(data.files).filter(([fileName]) => fileName !== ".placeholder"));
+    }
+
+    const folderName = parseFolder(data);
+    return res.status(200).json({ ...data, folderName });
+  }
+
+  // Jika semua Gists
+  const gistsWithFolder = data.map((gist) => ({
     ...gist,
     folderName: parseFolder(gist),
   }));
