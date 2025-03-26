@@ -9,15 +9,7 @@ const FolderList = ({ gists, loading, handleEditGist, handleDeleteGist, navigate
     </div>
   )
 
-  // console.log(gists)
-  // if (gists?.error) {
-  //   if (gists.status === 403) {
-  //     return <p className="text-red-500">Error 403: {gists.message}</p>;
-  //   }
-  //   return <p className="text-red-500">Error: {gists.message}</p>;
-  // }
-
-  if (gists.length === 0) return <p className="text-gray-500">Tidak ada folder, tambahkan folder baru!</p>;
+  if (gists?.length == 0) return <p className="text-gray-500">Tidak ada folder, tambahkan folder baru!</p>;
 
   return (
     <>

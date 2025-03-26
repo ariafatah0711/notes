@@ -38,14 +38,16 @@ export default function FolderPage() {
     setFileContent,
     setSelectedFiles,
     navigate,
-    reload
-    ,
+    reload,
   } = useFileContext();
 
-  // console.log(gists)
+  // console.log(currentGist?.files || {})
+  // console.log(filteredFiles)
 
   useEffect(() => {
-    setFilteredFiles(Object.keys(currentGist?.files || {}));
+    if (currentGist) {
+      setFilteredFiles(Object.keys(currentGist.files || {}));
+    }
   }, [currentGist]);
 
   useEffect(() => {
@@ -113,6 +115,13 @@ export default function FolderPage() {
   const handleLoadFile = useCallback(async (fileName) => {
     if (fileName === currentFile) return;
     const gist = await fetchGist(currentGist.id);
+
+    console.log(gist)
+    console.log(fileName)
+    // console.log(content)
+
+    if (!gist.url) return;
+
     setCurrentFile(fileName);
     setFileContent(gist.files[fileName]?.content || "");
     navigate(`#${encodeURIComponent(fileName)}`, { replace: true });
@@ -143,7 +152,7 @@ export default function FolderPage() {
                 setCurrentFile("");
                 navigate(".", { replace: true });
               }}
-              onEdit={(fileName) => handleEdit(fileName, { id: currentGist?.id, navigate,  })}
+              onEdit={(fileName) => handleEdit(fileName, { id: currentGist?.id, navigate, reload })}
               onDeleteFile={() => handleDeleteFile({ currentGist, currentFile, setCurrentFile, navigate, reload })}
             />
           </div>
@@ -151,11 +160,13 @@ export default function FolderPage() {
       ) : null}
 
       <div className="flex flex-wrap gap-4 justify-left pb-4">
-        {/* <SearchBar
-          placeholder="Cari file..."
-          data={Object.keys(currentGist?.files || {})}
-          onSearch={setFilteredFiles}
-        /> */}
+        {typeof SearchBar !== "undefined" && (
+          <SearchBar
+            placeholder="Cari file..."
+            data={Object.keys(currentGist?.files || {})}
+            onSearch={setFilteredFiles}
+          />
+        )}
         <IconButton
           onClick={() => handleAddFile({ currentGist, updateGist, navigate, reload })}
           icon={AiOutlineFileText}
@@ -189,7 +200,7 @@ export default function FolderPage() {
         />
       ) : (
         <p className="text-gray-500">
-          {gists?.error
+          {gists?.ok
             ? `${gists.status}, ${gists.error}`
             : 'Folder Tidak Ditemukan'}
           {' '}

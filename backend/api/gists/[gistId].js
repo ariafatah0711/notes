@@ -1,5 +1,6 @@
-// import { parseFolder } from "../util/parse";
-import { parseFolder } from "../util/parse.js";
+import { handleGet } from "../../handlers/getGists.js";
+import { handlePatchOrDelete } from "../../handlers/patchOrDeleteGist.js";
+import { handleError } from "../../utils/errorHandler.js";
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -9,59 +10,16 @@ export default async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();
 
   const { gistId } = req.query;
-  const GITHUB_API = `https://api.github.com/gists/${gistId}`;
-  const headers = {
-    Authorization: `token ${process.env.GITHUB_TOKEN}`,
-    "Content-Type": "application/json",
-  };
 
   try {
-    let response;
-    switch (req.method) {
-      case "GET":
-        response = await fetch(GITHUB_API, { headers });
-
-        /* debug error response */
-        // if (response.ok) {
-        //   const errorMessage = {};
-        //   return res.status(response.status).json({
-        //     status: response.status,
-        //     error: errorMessage?.message || "Failed to fetch Gist",
-        //   });
-        // }
-
-        if (!response.ok) {
-          const errorMessage = await response.json().catch(() => ({}));
-
-          return res.status(response.status).json({
-            status: response.status,
-            error: errorMessage?.message || "Failed to fetch Gist",
-          });
-        }
-
-        const data = await response.json();
-        const folderName = parseFolder(data);
-        return res.status(200).json({ ...data, folderName });
-      case "PATCH":
-      case "DELETE":
-        response = await fetch(GITHUB_API, {
-          method: req.method,
-          headers,
-          body: JSON.stringify(req.body),
-        });
-        break;
-      default:
-        return res.status(405).json({ error: "Method Not Allowed" });
+    if (req.method === "GET") {
+      return await handleGet(req, res, gistId);
+    } else if (["PATCH", "DELETE"].includes(req.method)) {
+      return await handlePatchOrDelete(req, res, gistId);
+    } else {
+      return res.status(405).json({ error: "Method Not Allowed" });
     }
-
-    if (req.method === "DELETE") {
-      return res.status(response.status).end();
-    }
-
-    const data = await response.json();
-    return res.status(response.status).json(data);
   } catch (error) {
-    console.error("Error:", error);
-    return res.status(500).json({ error: `Internal Server Error, ${error}` });
+    return handleError(res, error);
   }
 }

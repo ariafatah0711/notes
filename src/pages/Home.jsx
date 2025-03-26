@@ -35,9 +35,9 @@ export default function Home() {
         <IconButton onClick={() => handleAddGist(reload)} icon={AiFillFolderAdd} label="Tambah Folder" color="blue" />
       </div>
 
-      {gists?.error ? (
+      {gists?.ok == false ? (
         <div className="flex flex-col m-2">
-          <p className="text-gray-500">{gists.status}, {gists.error}</p>
+          <p className="text-gray-500">{gists.status} {gists.message}</p>
         </div>
       ) : (
         <FolderList

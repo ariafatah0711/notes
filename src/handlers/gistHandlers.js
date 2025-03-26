@@ -2,6 +2,12 @@ import { isLoggedIn } from "../utils/auth";
 import { createGist, deleteGist, updateFolderGist } from "../services/api";
 import GlobalSwal from "../utils/GlobalSwal";
 
+const handleApiMessage = (message, swall = false) => {
+  console.info(message);
+  if (swall == "success") Swal.fire("Sukses", message, "success");
+  if (swall == "error") Swal.fire("Sukses", message, "error");
+};
+
 const Swal = GlobalSwal;
 
 export const handleAddGist = async (reload) => {
@@ -35,7 +41,7 @@ export const handleEditGist = async (id, oldName, reload) => {
   if (!newName || newName === oldName) return;
 
   const res = await updateFolderGist(id, newName);
-  if (!res) return Swal.fire("Error", "Folder sudah ada", "error");
+  if (res.ok == false) return Swal.fire("Error", "Folder sudah ada", "error");
 
   reload();
 };
@@ -53,6 +59,7 @@ export const handleDeleteGist = async (id, reload) => {
 
   if (result.isConfirmed) {
     await deleteGist(id);
+    handleApiMessage(`berhasil menghapus folder`, "success");
     reload();
   }
 };

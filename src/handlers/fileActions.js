@@ -26,6 +26,8 @@ export const handleAddFile = async ({ currentGist, updateGist, navigate, reload 
 
 export const handleSave = async (content, { currentGist, currentFile, setFileContent, reload }) => {
   if (!isLoggedIn()) return Swal.fire("Error", "Harus login dulu!", "error");
+
+  if (!content.trim()) return Swal.fire("Error", "Konten file tidak boleh kosong!", "error");
   await updateGist(currentGist.id, { [currentFile]: { content } });
   Swal.fire("Sukses", "File berhasil disimpan!", "success");
   // navigate(`#${currentFile}`, { replace: true });
