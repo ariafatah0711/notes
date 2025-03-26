@@ -43,7 +43,19 @@ const pwaConfig = {
         urlPattern: /^https:\/\/notes-gist-testing\.vercel\.app\/api\/gists.*/i, // Pola URL untuk API
         handler: "NetworkFirst", // Coba ambil dari jaringan terlebih dahulu, jika gagal ambil dari cache
         options: {
-          cacheName: "gists-api-cache", // Nama cache untuk API
+          cacheName: "gists-api-cache-dev", // Nama cache untuk API
+          expiration: {
+            maxEntries: 20, // Maksimum 20 entri di cache
+            maxAgeSeconds: 86400, // Cache API kedaluwarsa setelah 1 hari
+          },
+          networkTimeoutSeconds: 10, // Timeout jaringan 10 detik
+        },
+      },
+      {
+        urlPattern: /^https:\/\/notes-gist\.vercel\.app\/api\/gists.*/i, // Pola URL untuk API
+        handler: "NetworkFirst", // Coba ambil dari jaringan terlebih dahulu, jika gagal ambil dari cache
+        options: {
+          cacheName: "gists-api-cache-prod", // Nama cache untuk API
           expiration: {
             maxEntries: 20, // Maksimum 20 entri di cache
             maxAgeSeconds: 86400, // Cache API kedaluwarsa setelah 1 hari
