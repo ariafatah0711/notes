@@ -1,7 +1,7 @@
 // import GlobalSwal from "../utils/GlobalSwal";
 // import { isLoggedIn } from "../utils/auth";
 // import { fetchGist, updateGist } from "../services/api";
-// import { handleApiMessage } from "./apiHandlers";
+// import { handleGistMessage } from "./apiHandlers";
 
 // const Swal = GlobalSwal;
 
@@ -21,10 +21,10 @@
 
 //   const res = await updateGist(currentGist.id, { [fileName]: { content: "_" } });
 
-//   // if (!res.ok) return handleApiMessage(`500 Server Internal Error`, "error");
-//   if (res.ok == false) return handleApiMessage(`500 Server Internal Error`, "error");
+//   // if (!res.ok) return handleGistMessage(`500 Server Internal Error`, "error");
+//   if (res.ok == false) return handleGistMessage(`500 Server Internal Error`, "error");
 
-//   handleApiMessage(`File ${fileName} berhasil dibuat!`, "success");
+//   handleGistMessage(`File ${fileName} berhasil dibuat!`, "success");
 //   // navigate(`#${encodeURIComponent(fileName)}`, { replace: true });
 //   reload();
 // };
@@ -35,9 +35,9 @@
 //   if (!content.trim()) return Swal.fire("Error", "Konten file tidak boleh kosong!", "error");
 
 //   const res = await updateGist(currentGist.id, { [currentFile]: { content } });
-//   if (res.ok == false) return handleApiMessage(`500 Server Internal Error`, "error");
+//   if (res.ok == false) return handleGistMessage(`500 Server Internal Error`, "error");
 
-//   handleApiMessage(`File berhasil disimpan!`, "success");
+//   handleGistMessage(`File berhasil disimpan!`, "success");
 //   // navigate(`#${currentFile}`, { replace: true });
 
 //   const gist = await fetchGist(currentGist.id);
@@ -75,7 +75,7 @@
 //   } catch (error) {
 //     console.error("Error:", error);
 
-//     handleApiMessage(`error.message`, "error");
+//     handleGistMessage(`error.message`, "error");
 //   }
 // };
 
@@ -98,7 +98,7 @@
 //   const newFiles = files.filter((fileName) => !existingFiles.includes(fileName));
 
 //   if (newFiles.length === 0) {
-//     return handleApiMessage(`Semua file sudah ada!`, "error");
+//     return handleGistMessage(`Semua file sudah ada!`, "error");
 //   }
 
 //   try {
@@ -108,13 +108,13 @@
 //     });
 
 //     const res = await updateGist(currentGist.id, updates);
-//     if (res.ok == false) return handleApiMessage(`500 Server Internal Error`, "error");
+//     if (res.ok == false) return handleGistMessage(`500 Server Internal Error`, "error");
 
-//     handleApiMessage(`${newFiles.join(", ")} berhasil dibuat!`, "success");
+//     handleGistMessage(`${newFiles.join(", ")} berhasil dibuat!`, "success");
 //     reload();
 //   } catch (error) {
 //     console.error("Error:", error);
-//     handleApiMessage(`Terjadi kesalahan saat menambahkan file.`, "error");
+//     handleGistMessage(`Terjadi kesalahan saat menambahkan file.`, "error");
 //   }
 // };
 
@@ -130,9 +130,9 @@
 //   if (result.isConfirmed) {
 //     const res = await updateGist(currentGist.id, { [currentFile]: null });
 
-//     if (res.ok == false) return handleApiMessage(`500 Server Internal Error`, "error");
+//     if (res.ok == false) return handleGistMessage(`500 Server Internal Error`, "error");
 
-//     handleApiMessage(`File ${fileName} berhasil dihapus!`, "success");
+//     handleGistMessage(`File ${fileName} berhasil dihapus!`, "success");
 //     setCurrentFile("");
 //     navigate(".", { replace: true });
 //     reload();
@@ -166,10 +166,10 @@
 //       selectedFiles.forEach((fileName) => (updates[fileName] = null));
 
 //       const res = await updateGist(currentGist.id, updates);
-//       if (res.ok == false) return handleApiMessage(`500 Server Internal Error`, "error");
+//       if (res.ok == false) return handleGistMessage(`500 Server Internal Error`, "error");
 
 //       setSelectedFiles([]);
-//       handleApiMessage(`File berhasil dihapus!`, "success");
+//       handleGistMessage(`File berhasil dihapus!`, "success");
 //       reload();
 //     } catch (error) {
 //       console.error("Error:", error);
@@ -181,7 +181,7 @@
 import GlobalSwal from "../utils/GlobalSwal";
 import { isLoggedIn } from "../utils/auth";
 import { fetchGist, updateGist } from "../services/api";
-import { handleApiMessage } from "./apiHandlers";
+import { handleGistMessage } from "./apiHandlers";
 
 const Swal = GlobalSwal;
 
@@ -201,13 +201,13 @@ export const handleAddFile = async ({ currentGist, updateGist, navigate, reload 
 
   try {
     const res = await updateGist(currentGist.id, { [fileName]: { content: "_" } });
-    if (res.ok === false) return handleApiMessage("500 Server Internal Error", "error");
+    if (res.ok === false) return handleGistMessage("500 Server Internal Error", "error");
 
-    handleApiMessage(`File ${fileName} berhasil dibuat!`, "success");
+    handleGistMessage(`File ${fileName} berhasil dibuat!`, "success");
     reload();
   } catch (error) {
     console.error("Error:", error);
-    handleApiMessage(error.message || "Terjadi kesalahan saat menambahkan file.", "error");
+    handleGistMessage(error.message || "Terjadi kesalahan saat menambahkan file.", "error");
   }
 };
 
@@ -218,16 +218,16 @@ export const handleSave = async (content, { currentGist, currentFile, setFileCon
 
   try {
     const res = await updateGist(currentGist.id, { [currentFile]: { content } });
-    if (res.ok === false) return handleApiMessage("500 Server Internal Error", "error");
+    if (res.ok === false) return handleGistMessage("500 Server Internal Error", "error");
 
-    handleApiMessage(`File berhasil disimpan!`, "success");
+    handleGistMessage(`File berhasil disimpan!`, "success");
 
     const gist = await fetchGist(currentGist.id);
     setFileContent(gist.files[currentFile]?.content || "");
     reload();
   } catch (error) {
     console.error("Error:", error);
-    handleApiMessage(error.message || "Terjadi kesalahan saat menyimpan file.", "error");
+    handleGistMessage(error.message || "Terjadi kesalahan saat menyimpan file.", "error");
   }
 };
 
@@ -253,13 +253,13 @@ export const handleEdit = async (oldName, { id, navigate, reload }) => {
       [oldName]: null,
     });
 
-    if (res.ok === false) return handleApiMessage("500 Server Internal Error", "error");
+    if (res.ok === false) return handleGistMessage("500 Server Internal Error", "error");
 
     navigate(`#${newName}`, { replace: true });
     reload();
   } catch (error) {
     console.error("Error:", error);
-    handleApiMessage(error.message || "Terjadi kesalahan saat mengedit file.", "error");
+    handleGistMessage(error.message || "Terjadi kesalahan saat mengedit file.", "error");
   }
 };
 
@@ -282,7 +282,7 @@ export const handleAddBatchFiles = async ({ currentGist, reload }) => {
   const newFiles = files.filter((fileName) => !existingFiles.includes(fileName));
 
   if (newFiles.length === 0) {
-    return handleApiMessage("Semua file sudah ada!", "error");
+    return handleGistMessage("Semua file sudah ada!", "error");
   }
 
   try {
@@ -292,13 +292,13 @@ export const handleAddBatchFiles = async ({ currentGist, reload }) => {
     });
 
     const res = await updateGist(currentGist.id, updates);
-    if (res.ok === false) return handleApiMessage("500 Server Internal Error", "error");
+    if (res.ok === false) return handleGistMessage("500 Server Internal Error", "error");
 
-    handleApiMessage(`${newFiles.join(", ")} berhasil dibuat!`, "success");
+    handleGistMessage(`${newFiles.join(", ")} berhasil dibuat!`, "success");
     reload();
   } catch (error) {
     console.error("Error:", error);
-    handleApiMessage(error.message || "Terjadi kesalahan saat menambahkan file.", "error");
+    handleGistMessage(error.message || "Terjadi kesalahan saat menambahkan file.", "error");
   }
 };
 
@@ -317,15 +317,15 @@ export const handleDeleteFile = async ({ currentGist, currentFile, setCurrentFil
     try {
       const res = await updateGist(currentGist.id, { [currentFile]: null });
 
-      if (res.ok === false) return handleApiMessage("500 Server Internal Error", "error");
+      if (res.ok === false) return handleGistMessage("500 Server Internal Error", "error");
 
-      handleApiMessage(`File ${currentFile} berhasil dihapus!`, "success");
+      handleGistMessage(`File ${currentFile} berhasil dihapus!`, "success");
       setCurrentFile("");
       navigate(".", { replace: true });
       reload();
     } catch (error) {
       console.error("Error:", error);
-      handleApiMessage(error.message || "Terjadi kesalahan saat menghapus file.", "error");
+      handleGistMessage(error.message || "Terjadi kesalahan saat menghapus file.", "error");
     }
   }
 };
@@ -358,14 +358,14 @@ export const handleDeleteSelectedFiles = async ({ selectedFiles, currentGist, se
       selectedFiles.forEach((fileName) => (updates[fileName] = null));
 
       const res = await updateGist(currentGist.id, updates);
-      if (res.ok === false) return handleApiMessage("500 Server Internal Error", "error");
+      if (res.ok === false) return handleGistMessage("500 Server Internal Error", "error");
 
       setSelectedFiles([]);
-      handleApiMessage("File berhasil dihapus!", "success");
+      handleGistMessage("File berhasil dihapus!", "success");
       reload();
     } catch (error) {
       console.error("Error:", error);
-      handleApiMessage(error.message || "Terjadi kesalahan saat menghapus file.", "error");
+      handleGistMessage(error.message || "Terjadi kesalahan saat menghapus file.", "error");
     }
   }
 };

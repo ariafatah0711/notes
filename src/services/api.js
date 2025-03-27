@@ -1,16 +1,16 @@
 import { apiDomain } from "../config";
-import { handleApiError, handleApiMessage, handleErrorResponse } from "../handlers/apiHandlers";
+import { handleGistApiError, handleGistMessage, handleGistErrorResponse } from "../handlers/apiHandlers";
 
 export const fetchGists = async () => {
   try {
     const response = await fetch(`${apiDomain}/gists`);
 
-    if (!response.ok) return handleErrorResponse(response);
+    if (!response.ok) return handleGistErrorResponse(response);
 
-    handleApiMessage(`fetch (Success): GET ${apiDomain}/gists`);
+    handleGistMessage(`fetch (Success): GET ${apiDomain}/gists`);
     return response.json();
   } catch (error) {
-    return handleApiError({ status: 500, message: "Server Internal Error" });
+    return handleGistApiError({ status: 500, message: "Server Internal Error" });
   }
 };
 
@@ -18,17 +18,17 @@ export const fetchGist = async (id) => {
   try {
     const response = await fetch(`${apiDomain}/gists/${id}`);
 
-    if (!response.ok) return handleErrorResponse(response, true);
+    if (!response.ok) return handleGistErrorResponse(response, true);
 
-    handleApiMessage(`fetch (Success): GET ${apiDomain}/gists/${id}`);
+    handleGistMessage(`fetch (Success): GET ${apiDomain}/gists/${id}`);
     return response.json();
   } catch (error) {
-    return handleApiError({ status: 500, message: "Server Internal Error", swall: true });
+    return handleGistApiError({ status: 500, message: "Server Internal Error", swall: true });
   }
 };
 
 export const createGist = async (folderName) => {
-  if (!navigator.onLine) return handleApiError({ status: 404, message: "Tidak ada koneksi internet.", swall: true });
+  if (!navigator.onLine) return handleGistApiError({ status: 404, message: "Tidak ada koneksi internet.", swall: true });
 
   try {
     const payload = {
@@ -43,20 +43,20 @@ export const createGist = async (folderName) => {
       body: JSON.stringify(payload),
     });
 
-    if (!response.ok) return handleErrorResponse(response, true);
+    if (!response.ok) return handleGistErrorResponse(response, true);
 
     const data = await response.json();
 
-    handleApiMessage(`fetch (Success): POST ${apiDomain}/gists \ncreateFolder: ${folderName}`);
-    handleApiMessage(`berhasil menambah folder`, "success");
+    handleGistMessage(`fetch (Success): POST ${apiDomain}/gists \ncreateFolder: ${folderName}`);
+    handleGistMessage(`berhasil menambah folder`, "success");
     return data.id;
   } catch (error) {
-    return handleApiError({ status: 500, message: "Server Internal Error", swall: true });
+    return handleGistApiError({ status: 500, message: "Server Internal Error", swall: true });
   }
 };
 
 export const updateFolderGist = async (id, folderName, files) => {
-  if (!navigator.onLine) return handleApiError({ status: 404, message: "Tidak ada koneksi internet.", swall: true });
+  if (!navigator.onLine) return handleGistApiError({ status: 404, message: "Tidak ada koneksi internet.", swall: true });
 
   try {
     const payload = { id, folderName, files };
@@ -66,39 +66,39 @@ export const updateFolderGist = async (id, folderName, files) => {
       body: JSON.stringify(payload),
     });
 
-    if (!response.ok) return handleErrorResponse(response);
+    if (!response.ok) return handleGistErrorResponse(response);
 
-    handleApiMessage(`fetch (Success): POST ${apiDomain}/gists \nupdateFolder: ${folderName}`);
-    handleApiMessage(`berhasil mengganti nama`, "success");
+    handleGistMessage(`fetch (Success): POST ${apiDomain}/gists \nupdateFolder: ${folderName}`);
+    handleGistMessage(`berhasil mengganti nama`, "success");
     return response.json();
   } catch (error) {
-    return handleApiError({ status: 500, message: "Server Internal Error", swall: true });
+    return handleGistApiError({ status: 500, message: "Server Internal Error", swall: true });
   }
 };
 
 export const deleteGist = async (id) => {
-  if (!navigator.onLine) return handleApiError({ status: 404, message: "Tidak ada koneksi internet.", swall: true });
+  if (!navigator.onLine) return handleGistApiError({ status: 404, message: "Tidak ada koneksi internet.", swall: true });
 
   try {
     // return await fetch(`${apiDomain}/gists/${id}`, { method: "DELETE" });
     const response = await fetch(`${apiDomain}/gists/${id}`, { method: "DELETE" });
 
-    handleApiMessage(`fetch (Success): POST ${apiDomain}/gists/${id} \ndeleteFolder: ${id}`);
+    handleGistMessage(`fetch (Success): POST ${apiDomain}/gists/${id} \ndeleteFolder: ${id}`);
     console.log(response);
     if (response.ok === true) {
-      handleApiMessage(`berhasil menghapus folder`, "success");
+      handleGistMessage(`berhasil menghapus folder`, "success");
     } else if (response.status === 404) {
       throw new Error("error");
     } else {
-      handleApiMessage(`gagal menghapus folder`, "error");
+      handleGistMessage(`gagal menghapus folder`, "error");
     }
   } catch (error) {
-    return handleApiError({ status: 500, message: "Server Internal Error", swall: true });
+    return handleGistApiError({ status: 500, message: "Server Internal Error", swall: true });
   }
 };
 
 export const updateGist = async (id, files) => {
-  if (!navigator.onLine) return handleApiError({ status: 404, message: "Tidak ada koneksi internet.", swall: true });
+  if (!navigator.onLine) return handleGistApiError({ status: 404, message: "Tidak ada koneksi internet.", swall: true });
 
   try {
     const payload = { files };
@@ -110,12 +110,12 @@ export const updateGist = async (id, files) => {
 
     console.log(response);
 
-    if (!response.ok) return handleErrorResponse(response, true);
+    if (!response.ok) return handleGistErrorResponse(response, true);
 
-    handleApiMessage(`fetch (Success): POST ${apiDomain}/gists/${id} \nupdateFile: ${files}`);
-    handleApiMessage(`berhasil mengedit file`, "success");
+    handleGistMessage(`fetch (Success): POST ${apiDomain}/gists/${id} \nupdateFile: ${files}`);
+    handleGistMessage(`berhasil mengedit file`, "success");
     return response.json();
   } catch (error) {
-    return handleApiError({ status: 500, message: "Server Internal Error", swall: true });
+    return handleGistApiError({ status: 500, message: "Server Internal Error", swall: true });
   }
 };

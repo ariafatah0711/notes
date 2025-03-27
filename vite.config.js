@@ -48,7 +48,7 @@ const pwaConfig = {
             maxEntries: 20, // Maksimum 20 entri di cache
             maxAgeSeconds: 86400, // Cache API kedaluwarsa setelah 1 hari
           },
-          networkTimeoutSeconds: 10, // Timeout jaringan 10 detik
+          networkTimeoutSeconds: 1, // Timeout jaringan 10 detik
         },
       },
       {
@@ -60,7 +60,7 @@ const pwaConfig = {
             maxEntries: 20, // Maksimum 20 entri di cache
             maxAgeSeconds: 86400, // Cache API kedaluwarsa setelah 1 hari
           },
-          networkTimeoutSeconds: 10, // Timeout jaringan 10 detik
+          networkTimeoutSeconds: 1, // Timeout jaringan 10 detik
         },
       },
     ],
