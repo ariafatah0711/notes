@@ -144,33 +144,43 @@ const Navbar = ({ links }) => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-gray-100 shadow-md p-4 flex justify-between items-center z-50">
+  <nav className="fixed top-0 left-0 w-full bg-gray-100 shadow-md p-4 flex items-center justify-between z-50">
+    <div>
       <a href="/" className="text-blue-500 hover:underline">
         <h3 className="text-lg font-semibold">{packageJson.name} v{packageJson.version}</h3>
       </a>
+    </div>
 
-      {/* Links Desktop */}
-      <div className="hidden md:flex gap-6">
-        {links.map((link) => (
-          <a key={link.path} href={link.path} className="text-gray-700 hover:text-blue-500">
-            {link.name}
-          </a>
-        ))}
-      </div>
+    <div className="absolute left-1/2 transform -translate-x-1/2 flex gap-6">
+      {links.map((link) => (
+        <a key={link.path} href={link.path} className="text-gray-700 hover:text-blue-500">
+          {link.name}
+        </a>
+      ))}
+    </div>
 
-      <div className="hidden md:flex items-center gap-4">
-        {loggedIn && (
+    <div className="flex items-center gap-4">
+      {/* Status Login (Tetap Ada agar Navbar Stabil) */}
+      <div className="flex justify-center">
+        {loggedIn ? (
           <span className="text-green-500 flex items-center">
             <FiUser className="h-5 w-5 mr-2" />
             <span className="hidden sm:block">Logged In</span>
           </span>
-        )}
-        {loggedIn ? (
-          <IconButton onClick={handleLogout} icon={FiLogOut} label="Logout" color="red" />
         ) : (
-          <IconButton onClick={handleLogin} icon={FiLogIn} label="Login" color="blue" />
+          <span className="opacity-0">Placeholder</span>
         )}
       </div>
+
+      <button 
+        onClick={loggedIn ? handleLogout : handleLogin} 
+        className="flex items-center justify-center gap-2 py-2 px-4 text-white rounded-md transition duration-200"
+        style={{ backgroundColor: loggedIn ? 'red' : 'blue' }}
+      >
+        {loggedIn ? <FiLogOut className="h-5 w-5" /> : <FiLogIn className="h-5 w-5" />}
+        <span>{loggedIn ? 'Logout' : 'Login'}</span>
+      </button>
+    </div>
 
       {/* Button Menu Mobile */}
       <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden text-gray-700 cursor-pointer">
