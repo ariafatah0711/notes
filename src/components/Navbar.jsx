@@ -151,7 +151,7 @@ const Navbar = ({ links }) => {
       </a>
     </div>
 
-    <div className="absolute left-1/2 transform -translate-x-1/2 flex gap-6">
+    <div className="absolute left-1/2 transform -translate-x-1/2 gap-6 hidden md:flex">
       {links.map((link) => (
         <a key={link.path} href={link.path} className="text-gray-700 hover:text-blue-500">
           {link.name}
@@ -159,7 +159,7 @@ const Navbar = ({ links }) => {
       ))}
     </div>
 
-    <div className="flex items-center gap-4">
+    <div className="items-center gap-4 hidden md:flex">
       {/* Status Login (Tetap Ada agar Navbar Stabil) */}
       <div className="flex justify-center">
         {loggedIn ? (
