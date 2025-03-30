@@ -23,15 +23,24 @@ import Navbar from "./components/Navbar";
 import FolderPage from "./pages/FolderPage";
 
 function App() {
+  const links = [
+    { name: "Notes", path: "/notes" },
+    { name: "Files", path: "/files" },
+    { name: "Info", path: "/blog/notes" },
+  ];
+
   return (
     <Router>
-      <Navbar />
-      <Routes>
-        {/* Tambahkan route default agar "/" diarahkan ke "/notes" */}
-        {/* <Route path="/" element={<Navigate to="/notes" />} /> */}
-        <Route path="/" element={<Home />} />
-        <Route path="/:folderName" element={<FolderPage />} />
-      </Routes>
+      {/* <Navbar /> */}
+      <Navbar links={links} />
+      <div className="pt-16 sm:pt-24"> {/* Tambahkan padding di sini */}
+        <Routes>
+          {/* Tambahkan route default agar "/" diarahkan ke "/notes" */}
+          {/* <Route path="/" element={<Navigate to="/notes" />} /> */}
+          <Route path="/" element={<Home />} />
+          <Route path="/:folderName" element={<FolderPage />} />
+       </Routes>
+      </div>
     </Router>
   );
 }
