@@ -4,77 +4,69 @@ const Swal = GlobalSwal;
 const styles = `
 /* CSS untuk mengubah ukuran SweetAlert agar mengisi layar penuh */
 .swal2-popup.fullscreen-popup {
-    width: 95vw !important;
-    height: 95vh !important;
-    max-width: 100% !important;
-    max-height: 95% !important;
-    border-radius: 8px;
-    padding-right: 14px !important;
+  width: 95vw !important;
+  height: 95vh !important;
+  max-width: 100% !important;
+  max-height: 95% !important;
+  border-radius: 8px;
+  padding-right: 14px !important;
 }
 
-/* Menonaktifkan scroll pada container utama */
 .swal2-container {
-    overflow: hidden !important;
+  overflow: hidden !important;
 }
 
-/* Menambahkan scroll jika konten melebihi tinggi */
 .swal2-html-container {
-    min-height: 65vh !important;
-    max-height: 90vh;
-    overflow-y: auto;
-    padding: 0 !important;
-    margin-top: 10px;
+  min-height: 65vh !important;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 0 !important;
+  margin-top: 10px;
 }
 
-/* Responsif untuk layar lebih kecil */
 @media (max-height: 600px) {
-    .swal2-html-container {
-        min-height: 45vh !important;
-    }
+  .swal2-html-container {
+    min-height: 45vh !important;
+  }
 }
 
 @media (max-height: 400px) {
-    .swal2-html-container {
-        min-height: 30vh !important;
-    }
+  .swal2-html-container {
+    min-height: 30vh !important;
+  }
 }
 
-/* Style pada teks agar lebih nyaman dibaca */
 .swal2-html-container pre {
-    margin: 0 !important;
-    padding: 0 !important;
-    font-size: 1rem;
-    color: #333;
-    white-space: pre-wrap;
-    word-wrap: break-word;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 1rem;
+  color: #333;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
-/* Mengatur tinggi maksimum judul */
 .swal2-title {
-    max-height: 80px;
-    font-size: 1.2rem !important;
+  max-height: 80px;
+  font-size: 1.2rem !important;
 }
 
-/* Mengatur tampilan fullscreen-popup */
 .fullscreen-popup {
-    display: grid;
-    grid-template-rows: auto 1fr;
-    align-content: center !important;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  align-content: center !important;
 }
 
-/* Meningkatkan ukuran font tombol cancel */
-.swal2-cancel {
-    font-size: 1.2rem !important;
-    padding: 10px 20px !important;
+.swal2-cancel,
+.swal2-confirm,
+.swal2-deny {
+  font-size: 1rem !important;
+  padding: 10px 20px !important;
 }
 
-/* Responsif untuk ukuran layar kecil */
 @media (max-width: 640px) {
-    #font_size_prev {
-        font-size: 8px;
-        zoom: 0.7;
-        /* 70% lebih kecil */
-    }
+  #font_size_prev {
+    font-size: 14px !important; /* ⬅️ default font size diperbesar */
+  }
 }
 `;
 
@@ -127,11 +119,11 @@ export const handlePreview = async (fileContent = null, fileName = null, current
     Swal.fire({
       title: "preview",
       html: `
-          <style>${styles}</style>
-          <div id="preview-teks" class="h-full bg-[#f8f8f8] overflow-auto text-left p-2 sm:p-3 md:p-4 border-gray-300 rounded-md shadow-md mx-2 sm:mx-3 md:mx-4 box-border">
-            <pre id="font_size_prev" class="h-full m-0 text-[10px] sm:text-base md:text-lg font-mono whitespace-pre-wrap break-words border-none">${escapedContent}</pre>
-          </div>
-        `,
+      <style>${styles}</style>
+      <div id="preview-teks" class="h-full bg-[#f8f8f8] overflow-auto text-left p-2 sm:p-3 md:p-4 border-gray-300 rounded-md shadow-md mx-2 sm:mx-3 md:mx-4 box-border">
+        <pre id="font_size_prev" class="h-full m-0 text-[14px] sm:text-base md:text-lg font-mono whitespace-pre-wrap break-words border-none">${escapedContent}</pre>
+      </div>
+    `,
       width: "100vw",
       heightAuto: true,
       showCloseButton: false,
