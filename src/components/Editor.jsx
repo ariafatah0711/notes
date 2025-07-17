@@ -3,109 +3,130 @@ import { FaSave, FaEdit, FaTrashAlt, FaEye } from "react-icons/fa"
 
 export default function Editor({ folderName, gistId, fileName, content, onSave, onClose, onEdit, onPreview, onDeleteFile }) {
   const [value, setValue] = useState(content);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewContent, setPreviewContent] = useState("");
+  const [showDetailsPreview, setShowDetailsPreview] = useState(false);
 
   useEffect(() => {
-    // Hanya setValue jika content tidak '_'
     if (content == "_") {
-      setValue(""); // Reset jika file kosong
+      setValue("");
     } else {
-      setValue(content); // Update dengan content baru
+      setValue(content);
     }
-  }, [content]);  // Pastikan effect ini hanya dipicu ketika content berubah
+  }, [content]);
 
-  // console.log(content)
-
-   // Tangani event Ctrl + S
-   useEffect(() => {
+  useEffect(() => {
     const handleKeyDown = (e) => {
-
       if (e.key === "Escape") {
-        onClose(); // Tutup editor saat Esc ditekan
+        onClose();
       } else if (e.ctrlKey && e.key === 's') {
-        e.preventDefault(); // Mencegah aksi default browser
+        e.preventDefault();
         onSave(value);
-        // onSave(textareaRef.current.value);
       }
     };
-
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [value, onSave]);
 
-  // Kalau tidak ada gist & file
-  if (!gistId) return null; 
+  if (!gistId) return null;
+  // Hanya tampilkan pesan error jika fileName/folderName tidak ada
+  if (!fileName || !folderName) {
+    return (
+      <div className="p-4 border mt-4 rounded text-gray-500 bg-white shadow max-w-2xl mx-auto">
+        <p>File tidak ditemukan.</p>
+      </div>
+    );
+  }
 
-  // console.log(fileName, folderName)
-  const isDisabled = !fileName || !folderName;
+  // Handler preview
+  const handlePreviewClick = async () => {
+    if (onPreview) {
+      const result = await onPreview(value);
+      setPreviewContent(result || value);
+      setShowPreview(true);
+    }
+  };
 
- // Kalau file kosong, tampilkan info saja
- if (isDisabled) {
   return (
-    <div className="p-4 border mt-4 rounded text-gray-500">
-      <p>File tidak ditemukan.</p>
+    <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-xl p-6 mt-6 flex flex-col gap-4">
+      <div className="flex items-center justify-between border-b pb-2 mb-4">
+        <div>
+          <span className="font-bold text-lg text-blue-700">{folderName}/{fileName}</span>
+          <span className="ml-2 text-xs text-gray-400">({value.length} chars)</span>
+        </div>
+        <button onClick={onClose} className="text-red-500 hover:text-red-700 text-2xl" title="Tutup">✖</button>
+      </div>
+      <textarea
+        id="text_gist"
+        className="w-full min-h-[200px] bg-gray-50 border border-gray-300 rounded-lg p-4 font-mono text-base focus:ring-2 focus:ring-blue-400 resize-vertical"
+        style={{
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-word',
+          overflowWrap: 'break-word',
+          resize: 'vertical',
+        }}
+        wrap="soft"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        placeholder="Edit file ini..."
+      />
+      <div className="flex gap-3 justify-end mt-2 flex-wrap">
+        <button
+          onClick={() => onSave(value)}
+          className="bg-green-500 text-white p-3 rounded-full hover:bg-green-600 transition-colors cursor-pointer flex items-center gap-2"
+        >
+          <FaSave /> <span className="hidden sm:inline">Save</span>
+        </button>
+        <button
+          onClick={handlePreviewClick}
+          className="bg-blue-500 text-white p-3 rounded-full hover:bg-blue-600 transition-colors cursor-pointer flex items-center gap-2"
+        >
+          <FaEye /> <span className="hidden sm:inline">Preview</span>
+        </button>
+        <button
+          onClick={() => onEdit(fileName)}
+          className="bg-yellow-500 text-white p-3 rounded-full hover:bg-yellow-600 transition-colors cursor-pointer flex items-center gap-2"
+        >
+          <FaEdit /> <span className="hidden sm:inline">Rename</span>
+        </button>
+        <button
+          onClick={onDeleteFile}
+          className="bg-red-500 text-white p-3 rounded-full hover:bg-red-600 transition-colors cursor-pointer flex items-center gap-2"
+        >
+          <FaTrashAlt /> <span className="hidden sm:inline">Delete</span>
+        </button>
+      </div>
+      {/* Status bar */}
+      <div className="text-xs text-gray-400 mt-1 flex justify-between">
+        <span>Characters: {value.length}</span>
+        <span>Ctrl+S to save, Esc to close</span>
+      </div>
+      {/* Details Preview (accordion) */}
+      <div className="mt-4">
+        <button
+          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-semibold focus:outline-none"
+          onClick={() => setShowDetailsPreview((prev) => !prev)}
+        >
+          <span>{showDetailsPreview ? '▼' : '▶'} Details Preview</span>
+        </button>
+        {showDetailsPreview && (
+          <div className="mt-2 bg-gray-100 border border-gray-300 rounded-lg p-4 font-mono text-base whitespace-pre-wrap break-words shadow-inner overflow-y-auto" style={{ maxHeight: '300px' }}>
+            {value || <span className="text-gray-400">(File kosong)</span>}
+          </div>
+        )}
+      </div>
+      {/* Preview pop-up */}
+      {showPreview && (
+        <div className="mt-6 bg-gray-100 border border-gray-300 rounded-lg p-4 font-mono text-base whitespace-pre-wrap break-words shadow-inner fixed top-0 left-0 right-0 z-50 max-w-2xl mx-auto">
+          <div className="flex justify-between items-center mb-2">
+            <span className="font-semibold text-gray-600">Preview</span>
+            <button onClick={() => setShowPreview(false)} className="text-red-400 hover:text-red-600 text-lg">✖</button>
+          </div>
+          {previewContent}
+        </div>
+      )}
     </div>
   );
-}
-
-return (
-  <div className="pt-1 flex flex-col h-full">
-  <div className="flex justify-between items-center mb-4">
-    <h4 className="text-xl font-semibold text-gray-700 hover:text-blue-800 cursor-pointer truncate">{folderName}/{fileName}</h4>
-    <button
-      onClick={onClose}
-      className="text-red-500 hover:text-red-700 text-2xl cursor-pointer"
-      title="Tutup Folder/File"
-    >
-      ❌
-    </button>
-  </div>
-
-  <textarea
-    id="text_gist"
-    className="w-full flex-grow border-2 border-gray-300 rounded-lg p-4 text-base sm:text-sm md:text-lg lg:text-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-    style={{
-      whiteSpace: 'pre-wrap',
-      wordBreak: 'break-word',
-      overflowWrap: 'break-word',
-      resize: 'vertical',
-    }}
-    wrap="soft"
-    value={value}
-    onChange={(e) => setValue(e.target.value)}
-    placeholder="Edit file ini..."
-  />
-
-    <div className="flex gap-4 mt-4 justify-end">
-      <button
-        onClick={() => onSave(value)}
-        className="bg-green-500 text-white p-3 rounded-full hover:bg-green-600 transition-colors cursor-pointer"
-      >
-        <FaSave />
-      </button>
-
-      <button
-        onClick={() => onPreview(document.getElementById("text_gist").value)}
-        className="bg-blue-500 text-white p-3 rounded-full hover:bg-blue-600 transition-colors cursor-pointer"
-      >
-        <FaEye />
-      </button>
-
-      <button
-        onClick={() => onEdit(fileName)}
-        className="bg-yellow-500 text-white p-3 rounded-full hover:bg-yellow-600 transition-colors cursor-pointer"
-      >
-        <FaEdit />
-      </button>
-
-      <button
-        onClick={onDeleteFile}
-        className="bg-red-500 text-white p-3 rounded-full hover:bg-red-600 transition-colors cursor-pointer"
-      >
-        <FaTrashAlt />
-      </button>
-    </div>
-  </div>
-);
 }

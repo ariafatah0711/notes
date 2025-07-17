@@ -132,83 +132,81 @@ export default function FolderPage() {
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+      {/* <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
         <a
           href={import.meta.env.BASE_URL}
           className="text-blue-500 font-medium hover:underline inline-block truncate overflow-hidden whitespace-nowrap"
         >
           {folderName}
         </a>
-      </h2>
+      </h2> */}
 
+      {/* Jika currentFile ada, tampilkan Editor, jika tidak tampilkan FileList dan tombol */}
       {currentFile && currentGist?.files?.[currentFile] ? (
-        <div className="w-full fixed inset-0 bg-gray-500 bg-opacity-50 flex z-50">
-          <div className="relative bg-white w-full p-4 shadow-lg">
-            <Editor
-              folderName={folderName}
-              gistId={currentGist.id}
-              fileName={currentFile}
-              content={fileContent}
-              onSave={(content) => handleSave(content, { currentGist, currentFile, setFileContent, reload })}
-              onPreview={(value) => handlePreview(value)}
-              onClose={() => {
-                setCurrentFile("");
-                navigate(".", { replace: true });
-              }}
-              onEdit={(fileName) => handleEdit(fileName, { id: currentGist?.id, navigate, reload })}
-              onDeleteFile={() => handleDeleteFile({ currentGist, currentFile, setCurrentFile, navigate, reload })}
-            />
-          </div>
-        </div>
-      ) : null}
-
-      <div className="flex flex-wrap gap-4 justify-left pb-4">
-        {typeof SearchBar !== "undefined" && (
-          <SearchBar
-            placeholder="Cari file..."
-            data={Object.keys(currentGist?.files || {})}
-            onSearch={setFilteredFiles}
-          />
-        )}
-        <IconButton
-          onClick={() => handleAddFile({ currentGist, updateGist, navigate, reload })}
-          icon={AiOutlineFileText}
-          label="Tambah File"
-          color="blue"
-        />
-        <IconButton
-          onClick={() => handleAddBatchFiles({ currentGist, reload })}
-          icon={AiOutlineAppstoreAdd}
-          label="Batch File"
-          color="green"
-        />
-        <IconButton
-          onClick={() => handleDeleteSelectedFiles({ selectedFiles, currentGist, setSelectedFiles, reload })}
-          icon={AiOutlineDelete}
-          label="Hapus File"
-          color="red"
-        />
-      </div>
-
-      {currentGist ? (
-        <FileList
-          filteredFiles={filteredFiles}
-          selectedFiles={selectedFiles}
-          handleSelectFile={handleSelectFile}
-          handleLoadFile={handleLoadFile}
-          handlePreview={handlePreview}
-          setSelectedFiles={setSelectedFiles}
-          currentFile={currentFile}
-          currentGist={currentGist}
+        <Editor
+          folderName={folderName}
+          gistId={currentGist.id}
+          fileName={currentFile}
+          content={fileContent}
+          onSave={(content) => handleSave(content, { currentGist, currentFile, setFileContent, reload })}
+          onPreview={(value) => handlePreview(value)}
+          onClose={() => {
+            setCurrentFile("");
+            navigate(".", { replace: true });
+          }}
+          onEdit={(fileName) => handleEdit(fileName, { id: currentGist?.id, navigate, reload })}
+          onDeleteFile={() => handleDeleteFile({ currentGist, currentFile, setCurrentFile, navigate, reload })}
         />
       ) : (
-        <p className="text-gray-500">
-          {gists?.ok
-            ? `${gists.status}, ${gists.error}`
-            : 'Folder Tidak Ditemukan'}
-          {' '}
-          <a href={import.meta.env.BASE_URL} className="text-blue-500 hover:underline">Back...</a>
-        </p>
+        <>
+          <div className="flex flex-wrap gap-4 justify-left pb-4">
+            {typeof SearchBar !== "undefined" && (
+              <SearchBar
+                placeholder="Cari file..."
+                data={Object.keys(currentGist?.files || {})}
+                onSearch={setFilteredFiles}
+              />
+            )}
+            <IconButton
+              onClick={() => handleAddFile({ currentGist, updateGist, navigate, reload })}
+              icon={AiOutlineFileText}
+              label="Tambah File"
+              color="blue"
+            />
+            <IconButton
+              onClick={() => handleAddBatchFiles({ currentGist, reload })}
+              icon={AiOutlineAppstoreAdd}
+              label="Batch File"
+              color="green"
+            />
+            <IconButton
+              onClick={() => handleDeleteSelectedFiles({ selectedFiles, currentGist, setSelectedFiles, reload })}
+              icon={AiOutlineDelete}
+              label="Hapus File"
+              color="red"
+            />
+          </div>
+          {currentGist ? (
+            <FileList
+              filteredFiles={filteredFiles}
+              selectedFiles={selectedFiles}
+              handleSelectFile={handleSelectFile}
+              handleLoadFile={handleLoadFile}
+              handlePreview={handlePreview}
+              setSelectedFiles={setSelectedFiles}
+              currentFile={currentFile}
+              currentGist={currentGist}
+            />
+          ) : (
+            <p className="text-gray-500">
+              {gists?.ok
+                ? `${gists.status}, ${gists.error}`
+                : 'Folder Tidak Ditemukan'}
+              {' '}
+              <a href={import.meta.env.BASE_URL} className="text-blue-500 hover:underline">Back...</a>
+            </p>
+          )}
+        </>
       )}
     </div>
   );
