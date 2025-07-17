@@ -3,6 +3,7 @@ import { token } from "../config";
 
 // GITHUB Gist API endpoint
 const GIST_API = "https://api.github.com/gists";
+alert(token);
 
 // Helper untuk ambil token dari env/frontend
 function getGithubToken() {
