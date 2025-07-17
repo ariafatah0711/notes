@@ -31,7 +31,7 @@ export default function Home() {
     <div className="max-w-5xl mx-auto px-4">
       <Breadcrumb navigate={navigate} />
       <div className="flex flex-wrap gap-4 justify-left pb-4">
-        <IconButton onClick={() => handleAddGist(reload)} icon={AiFillFolderAdd} label="Tambah Folder" color="blue" />
+        <IconButton onClick={() => handleAddGist(reload)} icon={AiFillFolderAdd} label="Tambah Folder" color="blue" size="md" />
       </div>
 
       {gists?.ok == false ? (

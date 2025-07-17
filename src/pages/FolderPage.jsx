@@ -165,18 +165,21 @@ export default function FolderPage() {
               icon={AiOutlineFileText}
               label="Tambah File"
               color="blue"
+              size="md"
             />
             <IconButton
               onClick={() => handleAddBatchFiles({ currentGist, reload })}
               icon={AiOutlineAppstoreAdd}
               label="Batch File"
               color="green"
+              size="md"
             />
             <IconButton
               onClick={() => handleDeleteSelectedFiles({ selectedFiles, currentGist, setSelectedFiles, reload })}
               icon={AiOutlineDelete}
               label="Hapus File"
               color="red"
+              size="md"
             />
           </div>
           {currentGist ? (

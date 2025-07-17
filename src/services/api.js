@@ -1,4 +1,3 @@
-import { apiDomain } from "../config";
 import { handleGistApiError, handleGistMessage, handleGistErrorResponse } from "../handlers/apiHandlers";
 
 // GITHUB Gist API endpoint

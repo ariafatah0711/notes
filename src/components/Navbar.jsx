@@ -80,7 +80,9 @@ const Navbar = ({ links }) => {
       <div className="max-w-5xl mx-auto flex items-center justify-between px-4 py-2"> 
         {/* Judul */}
         <div className="flex items-center gap-2">
-          <span className="font-bold text-blue-700 text-lg">{packageJson.name}</span>
+          <a href="/" className="font-bold text-blue-700 text-lg hover:underline hover:text-blue-900 transition">
+            {packageJson.name}
+          </a>
           <span className="ml-2 text-xs text-gray-400">v{packageJson.version}</span>
         </div>
         {/* Link Navigasi */}

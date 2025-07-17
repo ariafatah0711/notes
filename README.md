@@ -1,8 +1,8 @@
 # How to Run
 
-Untuk menjalankan aplikasi ini, ikuti langkah-langkah berikut:
+Untuk menjalankan aplikasi ini (frontend-only, langsung ke GitHub Gist API), ikuti langkah-langkah berikut:
 
-## Frontend
+## Install & Jalankan Frontend
 ```bash
 npm install
 
@@ -12,8 +12,8 @@ npm run dev
 # preview production
 npm run build; npm run preview
 
-# deploy
-# tambahkan secret ke variable github repository
+# deploy (GitHub Pages)
+# pastikan sudah mengatur base path dan homepage di package.json
 npm run deploy
 ```
 
@@ -27,7 +27,7 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: "/notes/",
+  base: "/notes/", // ganti sesuai repo GitHub Pages
 });
 ```
 
@@ -35,16 +35,16 @@ export default defineConfig({
 Tambahkan file `.env` di root folder dengan isi seperti ini:
 
 ```
-VITE_NOTES_PASSWORD=<pass>
-VITE_API_DOMAIN=https://api.notes.com/api
+VITE_NOTES_PASSWORD=<password-untuk-default-token>
+VITE_GIST_TOKEN=<default-github-token-opsional>
 ```
 
-## Backend
-```bash
-cd backend
-npm install
-vercel dev
-```
+- `VITE_NOTES_PASSWORD`: Password untuk mengakses default token (opsional, jika ingin fitur login dengan password).
+- `VITE_GIST_TOKEN`: (Opsional) Token GitHub default yang bisa digunakan user dengan password di atas.
+
+> **Catatan:**
+> - Sekarang aplikasi langsung terhubung ke GitHub Gist API, tidak perlu backend/server sendiri.
+> - Semua request API dilakukan dari frontend (React) ke GitHub Gist API.
 
 ---
 
@@ -75,15 +75,9 @@ npm run build
 npm run deploy
 ```
 
-```bash
-npm install react-router-dom axios tailwindcss
+---
 
-npm install -D tailwindcss postcss autoprefixer
-npx tailwindcss init -p
-# jika error pake ini
-npx tailwindcss-cli@latest init
-```
-
+# old
 ## How to Setup Vercel for Backend
 ```bash
 cd backend
@@ -100,4 +94,14 @@ Jika perlu memperbarui konfigurasi atau variable environment, pastikan melakukan
 
 ```bash
 vercel env pull         # Mengambil env dari Vercel
+```
+
+## tailwind
+```bash
+npm install react-router-dom axios tailwindcss
+
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+# jika error pake ini
+npx tailwindcss-cli@latest init
 ```
