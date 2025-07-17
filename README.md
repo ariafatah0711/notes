@@ -48,7 +48,8 @@ VITE_GIST_TOKEN=<default-github-token-opsional>
 
 ### deploy with github pages
 <!-- - jangan lupa allow ini https://github.com/<user>/<repo>/security/secret-scanning/unblock-secret/3012Slc4e5ZTEYFbZ73VBlJfiGV -->
-- disable push protection di setting > advance security > push protection
+<!-- - disable push protection di setting > advance security > push protection -->
+- disable Secret Protection, and push protection di setting > advance security
 
 ---
 
