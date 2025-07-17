@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Redirect GitHub Pages to Vercel
 
 on:
   push:
@@ -9,41 +9,39 @@ permissions:
   contents: write
 
 jobs:
-  build-and-deploy:
+  deploy-redirect:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Set Environment Variables
+      - name: Create redirect index.html
         run: |
-          echo "VITE_NOTES_PASSWORD=${{ secrets.VITE_NOTES_PASSWORD }}" > .env
-          echo "VITE_GITHUB_TOKEN=${{ secrets.VITE_GITHUB_TOKEN }}" >> .env
-        # echo "VITE_GITHUB_TOKEN=$(echo '${{ secrets.VITE_GITHUB_TOKEN }}' | base64)" >> .env
-
-      - name: Build Project
-        run: npm run build
-
-      - name: Generate .nojekyll
-        run: echo > dist/.nojekyll
+          mkdir redirect
+          cat <<EOF > redirect/index.html
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta http-equiv="refresh" content="0; url=https://notes.ariaf.my.id" />
+              <script>location.href = "https://notes.ariaf.my.id";</script>
+              <title>Redirecting...</title>
+            </head>
+            <body>
+              Redirecting to <a href="https://notes.ariaf.my.id">notes.ariaf.my.id</a>...
+            </body>
+          </html>
+          EOF
+          touch redirect/.nojekyll
 
       - name: Configure Git
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages (redirect only)
         run: |
           git checkout --orphan gh-pages
-          git --work-tree dist add --all
-          git --work-tree dist commit -m "Deploy to GitHub Pages"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:gh-pages --force
+          git --work-tree redirect add --all
+          git --work-tree redirect commit -m "Deploy redirect to GitHub Pages"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:gh-pa
