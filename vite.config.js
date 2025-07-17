@@ -69,5 +69,5 @@ const pwaConfig = {
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), VitePWA(pwaConfig)],
-  base: "/notes/",
+  base: "/notes_dev/",
 });
