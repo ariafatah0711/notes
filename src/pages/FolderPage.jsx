@@ -132,9 +132,8 @@ export default function FolderPage() {
   }, [currentFile, currentGist, navigate]);
 
   return (
-    <div className="p-4">
+    <div className="max-w-5xl mx-auto px-4">
       <Breadcrumb folderName={folderName} currentFile={currentFile} navigate={navigate} />
-
       {/* Jika currentFile ada, tampilkan Editor, jika tidak tampilkan FileList dan tombol */}
       {currentFile && currentGist?.files?.[currentFile] ? (
         <Editor

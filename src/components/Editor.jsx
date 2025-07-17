@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { FaSave, FaEdit, FaTrashAlt, FaEye } from "react-icons/fa"
+import GlobalSwal from "../utils/GlobalSwal";
 
 export default function Editor({ folderName, gistId, fileName, content, onSave, onClose, onEdit, onPreview, onDeleteFile }) {
   const [value, setValue] = useState(content);
@@ -40,17 +41,28 @@ export default function Editor({ folderName, gistId, fileName, content, onSave, 
     );
   }
 
+  const Swal = GlobalSwal;
+
   // Handler preview
   const handlePreviewClick = async () => {
+    if (!value.trim()) {
+      // Jika file kosong, tampilkan info Swal dan jangan buka preview
+      Swal.fire("Info", "File ini kosong!", "info");
+      return;
+    }
     if (onPreview) {
       const result = await onPreview(value);
       setPreviewContent(result || value);
-      setShowPreview(true);
+      setShowDetailsPreview(true);
+      setTimeout(() => {
+        const details = document.getElementById('details-preview');
+        if (details) details.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
     }
   };
 
   return (
-    <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-xl p-6 mt-6 flex flex-col gap-4">
+    <div className="w-full bg-white shadow-lg rounded-xl p-6 mt-6 flex flex-col gap-4">
       <div className="flex items-center justify-between border-b pb-2 mb-4">
         <div>
           <span className="font-bold text-lg text-blue-700">{folderName}/{fileName}</span>
@@ -112,21 +124,11 @@ export default function Editor({ folderName, gistId, fileName, content, onSave, 
           <span>{showDetailsPreview ? '▼' : '▶'} Details Preview</span>
         </button>
         {showDetailsPreview && (
-          <div className="mt-2 bg-gray-100 border border-gray-300 rounded-lg p-4 font-mono text-base whitespace-pre-wrap break-words shadow-inner overflow-y-auto" style={{ maxHeight: '300px' }}>
-            {value || <span className="text-gray-400">(File kosong)</span>}
+          <div id="details-preview" className="mt-2 bg-gray-100 border border-gray-300 rounded-lg p-4 font-mono text-base whitespace-pre-wrap break-words shadow-inner overflow-y-auto" style={{ maxHeight: '300px' }}>
+            {(previewContent || value) ? (previewContent || value) : <span className="text-gray-400">(File kosong)</span>}
           </div>
         )}
       </div>
-      {/* Preview pop-up */}
-      {showPreview && (
-        <div className="mt-6 bg-gray-100 border border-gray-300 rounded-lg p-4 font-mono text-base whitespace-pre-wrap break-words shadow-inner fixed top-0 left-0 right-0 z-50 max-w-2xl mx-auto">
-          <div className="flex justify-between items-center mb-2">
-            <span className="font-semibold text-gray-600">Preview</span>
-            <button onClick={() => setShowPreview(false)} className="text-red-400 hover:text-red-600 text-lg">✖</button>
-          </div>
-          {previewContent}
-        </div>
-      )}
     </div>
   );
 }

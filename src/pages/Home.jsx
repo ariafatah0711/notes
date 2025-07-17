@@ -28,7 +28,7 @@ export default function Home() {
   }, [reload]);
 
   return (
-    <div className="p-4">
+    <div className="max-w-5xl mx-auto px-4">
       <Breadcrumb navigate={navigate} />
       <div className="flex flex-wrap gap-4 justify-left pb-4">
         <IconButton onClick={() => handleAddGist(reload)} icon={AiFillFolderAdd} label="Tambah Folder" color="blue" />

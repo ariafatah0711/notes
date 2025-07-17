@@ -33,7 +33,7 @@ function App() {
     <Router>
       {/* <Navbar /> */}
       <Navbar links={links} />
-      <div className="pt-16 sm:pt-24"> {/* Tambahkan padding di sini */}
+      <div className="pt-16 sm:pt-20"> {/* Tambahkan padding di sini */}
         <Routes>
           {/* Tambahkan route default agar "/" diarahkan ke "/notes" */}
           {/* <Route path="/" element={<Navigate to="/notes" />} /> */}
