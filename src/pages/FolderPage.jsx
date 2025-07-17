@@ -1,6 +1,6 @@
 /* react */
 import { useEffect, useCallback } from "react";
-import { AiOutlineFileText, AiOutlineAppstoreAdd, AiOutlineDelete } from "react-icons/ai";
+import { AiOutlineFileText, AiOutlineAppstoreAdd, AiOutlineDelete, AiOutlineHome, AiOutlineRight } from "react-icons/ai";
 import { useFileContext } from "../hooks/useFileContext";
 import { fetchGist, updateGist } from "../services/api";
 
@@ -9,6 +9,7 @@ import FileList from "../components/FileList";
 import SearchBar from "../components/SearchBar";
 import Editor from "../components/Editor";
 import IconButton from "../components/IconButton";
+import Breadcrumb from "../components/Breadcrumb";
 
 /* handlers */
 import { handlePreview } from "../handlers/previewHandlers";
@@ -132,14 +133,7 @@ export default function FolderPage() {
 
   return (
     <div className="p-4">
-      {/* <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-        <a
-          href={import.meta.env.BASE_URL}
-          className="text-blue-500 font-medium hover:underline inline-block truncate overflow-hidden whitespace-nowrap"
-        >
-          {folderName}
-        </a>
-      </h2> */}
+      <Breadcrumb folderName={folderName} currentFile={currentFile} navigate={navigate} />
 
       {/* Jika currentFile ada, tampilkan Editor, jika tidak tampilkan FileList dan tombol */}
       {currentFile && currentGist?.files?.[currentFile] ? (

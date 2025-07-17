@@ -6,6 +6,7 @@ import { useEffect } from "react";
 /* component */
 import FolderList from "../components/FolderList";
 import IconButton from "../components/IconButton";
+import Breadcrumb from "../components/Breadcrumb";
 
 /* handlers */
 import { handleAddGist, handleEditGist, handleDeleteGist } from "../handlers/gistHandlers";
@@ -28,9 +29,7 @@ export default function Home() {
 
   return (
     <div className="p-4">
-      {/* <h2 className="text-xl font-semibold mb-4">
-        <a href={import.meta.env.BASE_URL} className="text-blue-500 hover:underline">Folder List</a>
-      </h2> */}
+      <Breadcrumb navigate={navigate} />
       <div className="flex flex-wrap gap-4 justify-left pb-4">
         <IconButton onClick={() => handleAddGist(reload)} icon={AiFillFolderAdd} label="Tambah Folder" color="blue" />
       </div>
