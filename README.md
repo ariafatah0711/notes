@@ -46,6 +46,9 @@ VITE_GIST_TOKEN=<default-github-token-opsional>
 > - Sekarang aplikasi langsung terhubung ke GitHub Gist API, tidak perlu backend/server sendiri.
 > - Semua request API dilakukan dari frontend (React) ke GitHub Gist API.
 
+### deploy with github pages
+- jangan lupa allow ini https://github.com/<user>/<repo>/security/secret-scanning/unblock-secret/3012Slc4e5ZTEYFbZ73VBlJfiGV
+
 ---
 
 # Belajar

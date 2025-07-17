@@ -26,7 +26,7 @@ jobs:
 
       - name: Set Environment Variables
         run: |
-          echo "VITE_NOTES_PASSWORD=${{ secrets.VITE_NOTES_PASSWORD }}" >> .env
+          echo "VITE_NOTES_PASSWORD=${{ secrets.VITE_NOTES_PASSWORD }}" > .env
           echo "VITE_GITHUB_TOKEN=${{ secrets.VITE_GITHUB_TOKEN }}" >> .env
         # echo "VITE_GITHUB_TOKEN=$(echo '${{ secrets.VITE_GITHUB_TOKEN }}' | base64)" >> .env
 
