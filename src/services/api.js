@@ -1,4 +1,5 @@
 import { handleGistApiError, handleGistMessage, handleGistErrorResponse } from "../handlers/apiHandlers";
+import { token } from "../config";
 
 // GITHUB Gist API endpoint
 const GIST_API = "https://api.github.com/gists";
@@ -6,7 +7,7 @@ const GIST_API = "https://api.github.com/gists";
 // Helper untuk ambil token dari env/frontend
 function getGithubToken() {
   // Prioritas: custom token dari localStorage, lalu .env, lalu window
-  return localStorage.getItem("github_token") || import.meta.env.VITE_GITHUB_TOKEN || window.GITHUB_TOKEN || "";
+  return localStorage.getItem("github_token") || token || window.GITHUB_TOKEN || "";
 }
 
 // Helper untuk membuat URL dengan query param acak
