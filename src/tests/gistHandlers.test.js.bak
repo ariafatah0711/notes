@@ -1,0 +1,62 @@
+import React from "react";
+import { render, screen, fireEvent } from "@testing-library/react";
+// import Home from "../pages/Home";
+import { Home } from "../pages/Home";
+import { useFileContext } from "../hooks/useFileContext";
+import { handleAddGist, handleEditGist, handleDeleteGist } from "../handlers/gistHandlers";
+
+jest.mock("../hooks/useFileContext", () => ({
+  useFileContext: jest.fn(),
+}));
+
+jest.mock("../handlers/gistHandlers", () => ({
+  handleAddGist: jest.fn(),
+  handleEditGist: jest.fn(),
+  handleDeleteGist: jest.fn(),
+}));
+
+describe("Home Component", () => {
+  const mockNavigate = jest.fn();
+  const mockReload = jest.fn();
+
+  beforeEach(() => {
+    useFileContext.mockReturnValue({
+      gists: [
+        { id: "1", description: "Gist 1" },
+        { id: "2", description: "Gist 2" },
+      ],
+      loading: false,
+      navigate: mockNavigate,
+      reload: mockReload,
+    });
+  });
+
+  it("renders Folder List and Add Folder button", () => {
+    render(<Home />);
+    expect(screen.getByText(/Folder List/i)).toBeInTheDocument();
+    expect(screen.getByText(/Tambah Folder/i)).toBeInTheDocument();
+  });
+
+  it("calls handleAddGist on Add Folder button click", () => {
+    render(<Home />);
+    const addButton = screen.getByText(/Tambah Folder/i);
+    fireEvent.click(addButton);
+    expect(handleAddGist).toHaveBeenCalledWith(mockReload);
+  });
+
+  it("calls handleEditGist on edit action", () => {
+    render(<Home />);
+    const editButton = screen.getByText(/Gist 1/i);
+    fireEvent.click(editButton);
+    handleEditGist("1", "Updated Gist 1", mockReload);
+    expect(handleEditGist).toHaveBeenCalledWith("1", "Updated Gist 1", mockReload);
+  });
+
+  it("calls handleDeleteGist on delete action", () => {
+    render(<Home />);
+    const deleteButton = screen.getByText(/Gist 2/i);
+    fireEvent.click(deleteButton);
+    handleDeleteGist("2", mockReload);
+    expect(handleDeleteGist).toHaveBeenCalledWith("2", mockReload);
+  });
+});
