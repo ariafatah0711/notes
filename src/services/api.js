@@ -6,8 +6,8 @@ const GIST_API = "https://api.github.com/gists";
 
 // Helper untuk ambil token dari env/frontend
 function getGithubToken() {
-  // Bisa dari .env (VITE_GITHUB_TOKEN) atau window/global variable
-  return import.meta.env.VITE_GITHUB_TOKEN || window.GITHUB_TOKEN || "";
+  // Prioritas: custom token dari localStorage, lalu .env, lalu window
+  return localStorage.getItem("github_token") || import.meta.env.VITE_GITHUB_TOKEN || window.GITHUB_TOKEN || "";
 }
 
 // Helper untuk membuat URL dengan query param acak

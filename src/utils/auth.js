@@ -9,11 +9,12 @@ export const login = (password) => {
   return false;
 };
 
-export const logout = () => {
-  localStorage.removeItem("token");
+export const isLoggedIn = () => {
+  // Anggap login jika ada token custom ATAU sudah login password
+  return !!localStorage.getItem("github_token") || !!localStorage.getItem("token");
 };
 
-export const isLoggedIn = () => {
-  const token = localStorage.getItem("token");
-  return token && atob(token) === correctPassword;
+export const logout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("github_token");
 };
