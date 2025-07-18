@@ -1,14 +1,18 @@
 import { handleGistApiError, handleGistMessage, handleGistErrorResponse } from "../handlers/apiHandlers";
-import { token } from "../config";
+import { getActiveAccount } from "../utils/auth";
 
 // GITHUB Gist API endpoint
 const GIST_API = "https://api.github.com/gists";
 // alert(token);
 
-// Helper untuk ambil token dari env/frontend
+// Helper untuk ambil token dari akun aktif
 function getGithubToken() {
-  // Prioritas: custom token dari localStorage, lalu .env, lalu window
-  return localStorage.getItem("github_token") || token || window.GITHUB_TOKEN || "";
+  const acc = getActiveAccount();
+  // Custom: token, Default: api
+  if (!acc) return "";
+  if (acc.type === "github") return acc.token;
+  if (acc.type === "api") return acc.api;
+  return "";
 }
 
 // Helper untuk membuat URL dengan query param acak

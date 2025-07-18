@@ -1,83 +1,80 @@
 import { useState, useEffect } from "react";
-import { FiLogIn, FiLogOut, FiUser, FiMenu } from "react-icons/fi";
+import { FiUser, FiMenu, FiChevronDown, FiUnlock, FiLock } from "react-icons/fi";
 import IconButton from "./IconButton";
-import { login, logout, isLoggedIn } from "../utils/auth";
+import {
+  getAllAccounts,
+  getActiveAccount,
+  setActiveAccount,
+} from "../utils/auth";
 import packageJson from "../../package.json";
 import GlobalSwal from "../utils/GlobalSwal";
 import { useNavigate } from "react-router-dom";
 
 const Swal = GlobalSwal;
 
+const WRITE_MODE_KEY = "write_mode";
+
 const Navbar = ({ links }) => {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [accounts, setAccounts] = useState([]);
+  const [activeAccount, setActiveAccountState] = useState(null);
+  const [showAccountDropdown, setShowAccountDropdown] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
-  const [loginInput, setLoginInput] = useState("");
-  const [loginError, setLoginError] = useState("");
-  const correctPassword = import.meta.env.VITE_NOTES_PASSWORD;
+  const [showWriteModal, setShowWriteModal] = useState(false);
+  const [writePassword, setWritePassword] = useState("");
+  const [writeError, setWriteError] = useState("");
+  const [writeMode, setWriteMode] = useState(false);
   const navigate = useNavigate();
 
+  // Load accounts, active account, and write mode
   useEffect(() => {
-    setLoggedIn(isLoggedIn());
+    setAccounts(getAllAccounts());
+    setActiveAccountState(getActiveAccount());
+    setWriteMode(
+      localStorage.getItem(WRITE_MODE_KEY) === "true"
+    );
   }, []);
 
-  const handleLogin = () => {
-    setShowLogin(true);
-    setLoginInput("");
-    setLoginError("");
+  // Refresh accounts and active account
+  const refreshAccounts = () => {
+    setAccounts(getAllAccounts());
+    setActiveAccountState(getActiveAccount());
   };
 
-  const handleLoginSubmit = (e) => {
+  // Switch akun aktif
+  const handleSwitchAccount = (idx) => {
+    setActiveAccount(idx);
+    setWriteMode(false);
+    localStorage.setItem(WRITE_MODE_KEY, "false");
+    refreshAccounts();
+    window.location.reload();
+  };
+
+  // Unlock write mode
+  const handleUnlockWrite = (e) => {
     e.preventDefault();
-    if (loginInput === correctPassword) {
-      if (login(loginInput)) {
-        setLoggedIn(true);
-        setShowLogin(false);
-        setLoginInput("");
-        setLoginError("");
-        Swal.fire("Berhasil!", "Login sukses!", "success");
-        navigate("/");
-      } else {
-        setLoginError("Password salah!");
-      }
-    } else if (loginInput.length >= 30 && (loginInput.startsWith("ghp_") || loginInput.startsWith("github_pat_"))) {
-      localStorage.setItem("github_token", loginInput.trim());
-      setShowLogin(false);
-      setLoginInput("");
-      setLoginError("");
-      Swal.fire("Berhasil!", "Token custom disimpan!", "success").then(() => {
-        navigate("/");
-        window.location.reload();
-      });
+    if (!activeAccount) return;
+    if (writePassword === activeAccount.password) {
+      setWriteMode(true);
+      localStorage.setItem(WRITE_MODE_KEY, "true");
+      setShowWriteModal(false);
+      setWritePassword("");
+      setWriteError("");
+      Swal.fire("Write Mode Aktif", "Sekarang kamu bisa menulis/mengedit file.", "success");
     } else {
-      setLoginError("Password/token tidak valid!");
+      setWriteError("Password salah!");
     }
   };
 
-  const handleLogout = () => {
-    Swal.fire({
-      title: "Konfirmasi",
-      text: "Yakin ingin logout?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, logout",
-      cancelButtonText: "Batal",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        logout();
-        setLoggedIn(false);
-        localStorage.removeItem("github_token");
-        Swal.fire("Logout!", "Anda telah logout.", "success");
-        window.location.reload();
-      }
-    });
+  // Lock write mode
+  const handleLockWrite = () => {
+    setWriteMode(false);
+    localStorage.setItem(WRITE_MODE_KEY, "false");
+    Swal.fire("Write Mode Dimatikan", "Sekarang hanya bisa read-only.", "info");
   };
-
-  const isCustomToken = !!localStorage.getItem("github_token");
 
   return (
     <nav className="fixed top-0 left-0 w-full bg-white/80 backdrop-blur shadow z-50 border-b border-gray-200">
-      <div className="max-w-5xl mx-auto flex items-center justify-between px-4 py-2"> 
+      <div className="max-w-5xl mx-auto flex items-center justify-between px-4 py-2">
         {/* Judul */}
         <div className="flex items-center gap-2">
           <a href="https://ariaf.my.id" className="font-bold text-blue-700 text-lg hover:underline hover:text-blue-900 transition">
@@ -90,10 +87,9 @@ const Navbar = ({ links }) => {
           {links.map(link => {
             let url = link.path;
             let isExternal = false;
-            // Deteksi jika sudah http/https
             if (url.startsWith("http://") || url.startsWith("https://")) {
               isExternal = true;
-            } else if (/^[\w.-]+\.[a-zA-Z]{2,}/.test(url)) { // domain tanpa protokol
+            } else if (/^[\w.-]+\.[a-zA-Z]{2,}/.test(url)) {
               url = "https://" + url;
               isExternal = true;
             }
@@ -102,7 +98,6 @@ const Navbar = ({ links }) => {
                 key={link.path}
                 href={url}
                 className="text-gray-700 hover:text-blue-600 font-medium transition"
-                // {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                 {...(isExternal ? { rel: "noopener noreferrer" } : {})}
               >
                 {link.name}
@@ -112,21 +107,54 @@ const Navbar = ({ links }) => {
         </div>
         {/* Status & Tombol */}
         <div className="flex items-center gap-3">
-          {/* Status & Tombol hanya di desktop */}
-          <div className="hidden md:flex items-center gap-3">
-            {isCustomToken
-              ? <span className="text-green-600 font-semibold text-xs bg-green-100 px-2 py-1 rounded">Custom Token</span>
-              : loggedIn
-                ? <span className="text-green-600 font-semibold text-xs bg-green-100 px-2 py-1 rounded">Logged In</span>
-                : null
-            }
-            <button
-              onClick={loggedIn || isCustomToken ? handleLogout : handleLogin}
-              className={`flex items-center gap-2 px-4 py-2 rounded transition font-semibold ${loggedIn || isCustomToken ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'} text-white`}
-            >
-              {loggedIn || isCustomToken ? <FiLogOut /> : <FiLogIn />}
-              {loggedIn || isCustomToken ? 'Logout' : 'Login'}
-            </button>
+          {/* Dropdown akun */}
+          <div className="hidden md:flex items-center gap-3 relative">
+            {activeAccount && (
+              <button
+                className="flex items-center gap-2 px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs border border-gray-300"
+                onClick={() => setShowAccountDropdown(v => !v)}
+              >
+                <FiUser />
+                {activeAccount.name || "Akun"}
+                <FiChevronDown />
+              </button>
+            )}
+            {showAccountDropdown && (
+              <div className="absolute right-0 top-10 bg-white border border-gray-200 shadow-lg rounded w-56 z-50">
+                <div className="max-h-60 overflow-y-auto divide-y divide-gray-100">
+                  {accounts.map((acc, idx) => (
+                    <div key={idx} className="flex items-center justify-between px-4 py-2 hover:bg-blue-50 cursor-pointer"
+                      onClick={() => handleSwitchAccount(idx)}>
+                      <div className="flex items-center gap-2">
+                        {activeAccount.name === acc.name && activeAccount.type === acc.type ? <span className="text-green-500">●</span> : <span className="text-gray-300">○</span>}
+                        <span className="font-medium text-sm">{acc.name}</span>
+                        <span className="text-xs text-gray-400">{acc.type === "api" ? "Default" : "Custom"}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {/* Tombol Write Mode/Lock */}
+            {activeAccount && activeAccount.type === "api" && (
+              writeMode ? (
+                <button
+                  onClick={handleLockWrite}
+                  className="flex items-center gap-2 px-3 py-1 rounded bg-red-100 hover:bg-red-200 text-red-700 font-semibold text-xs border border-red-300 ml-2"
+                  title="Kunci kembali ke read-only"
+                >
+                  <FiLock /> Lock
+                </button>
+              ) : (
+                <button
+                  onClick={() => { setShowWriteModal(true); setWritePassword(""); setWriteError(""); }}
+                  className="flex items-center gap-2 px-3 py-1 rounded bg-green-100 hover:bg-green-200 text-green-700 font-semibold text-xs border border-green-300 ml-2"
+                  title="Aktifkan Write Mode"
+                >
+                  <FiUnlock /> Write Mode
+                </button>
+              )
+            )}
           </div>
           {/* Hamburger menu for mobile */}
           <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden text-gray-700 ml-2">
@@ -157,55 +185,46 @@ const Navbar = ({ links }) => {
               </a>
             );
           })}
-          <button
-            onClick={loggedIn || isCustomToken ? handleLogout : handleLogin}
-            className={`w-full flex items-center justify-center gap-2 px-4 py-2 mt-2 rounded transition font-semibold ${loggedIn || isCustomToken ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'} text-white`}
-          >
-            {loggedIn || isCustomToken ? <FiLogOut /> : <FiLogIn />}
-            {loggedIn || isCustomToken ? 'Logout' : 'Login'}
-          </button>
         </div>
       )}
-      {/* Modal Login */}
-      {showLogin && (
-        <>
-          <form onSubmit={handleLoginSubmit} className="fixed top-20 right-6 z-50 bg-white rounded-lg shadow-lg p-6 max-w-xs w-full border border-gray-200 animate-slide-in">
+      {/* Modal Write Mode */}
+      {showWriteModal && (
+        <form onSubmit={handleUnlockWrite} className="fixed top-20 right-6 z-50 bg-white rounded-lg shadow-lg p-6 max-w-xs w-full border border-gray-200 animate-slide-in">
+          <button
+            onClick={() => setShowWriteModal(false)}
+            type="button"
+            className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-2xl"
+            title="Tutup"
+          >
+            &times;
+          </button>
+          <h3 className="text-lg font-bold mb-4 text-blue-700 flex items-center gap-2">
+            <FiUnlock /> Masukkan Password
+          </h3>
+          <label className="block mb-2 text-sm font-medium text-gray-700">Password akun <b>{activeAccount?.name}</b></label>
+          <input
+            type="password"
+            className="w-full border border-gray-300 rounded px-3 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            placeholder="Password akun..."
+            value={writePassword}
+            onChange={e => setWritePassword(e.target.value)}
+            autoFocus
+          />
+          {writeError && <div className="text-red-500 text-xs mb-2">{writeError}</div>}
+          <div className="flex gap-2 mb-2">
             <button
-              onClick={() => setShowLogin(false)}
-              type="button"
-              className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-2xl"
-              title="Tutup"
+              type="submit"
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
             >
-              &times;
+              Unlock Write
             </button>
-            <h3 className="text-lg font-bold mb-4 text-blue-700 flex items-center gap-2">
-              <FiLogIn /> Login
-            </h3>
-            <label className="block mb-2 text-sm font-medium text-gray-700">Password atau Token GitHub</label>
-            <input
-              type="text"
-              className="w-full border border-gray-300 rounded px-3 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="Masukkan password atau token..."
-              value={loginInput}
-              onChange={e => setLoginInput(e.target.value)}
-              autoFocus
-            />
-            {loginError && <div className="text-red-500 text-xs mb-2">{loginError}</div>}
-            <div className="flex gap-2 mb-2">
-              <button
-                type="submit"
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
-              >
-                Login
-              </button>
-            </div>
-            <p className="text-xs text-gray-500 mt-2">
-              Masukkan password (akses default) atau token GitHub (akses Gist sendiri).<br />
-              Token hanya disimpan di browser kamu.<br />
-              <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">Buat token di sini</a> (beri scope <b>gist</b>).
-            </p>
-          </form>
-        </>
+          </div>
+          <p className="text-xs text-gray-500 mt-2">
+            Masukkan password akun untuk mengaktifkan mode tulis (write mode).<br />
+            Setelah aktif, kamu bisa menambah/mengedit file.<br />
+            Jangan lupa lock kembali jika sudah selesai.
+          </p>
+        </form>
       )}
     </nav>
   );
