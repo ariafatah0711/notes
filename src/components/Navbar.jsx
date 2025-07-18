@@ -5,6 +5,10 @@ import {
   getAllAccounts,
   getActiveAccount,
   setActiveAccount,
+  setWriteModeForUser,
+  clearWriteModeForUser,
+  isWriteModeForUser,
+  getActiveAccountIndex,
 } from "../utils/auth";
 import packageJson from "../../package.json";
 import GlobalSwal from "../utils/GlobalSwal";
@@ -22,15 +26,18 @@ const Navbar = ({ links }) => {
   const [showWriteModal, setShowWriteModal] = useState(false);
   const [writePassword, setWritePassword] = useState("");
   const [writeError, setWriteError] = useState("");
-  const [writeMode, setWriteMode] = useState(false);
+  const [writeMode, setWriteModeState] = useState(false);
   const navigate = useNavigate();
 
   // Load accounts, active account, and write mode
   useEffect(() => {
     setAccounts(getAllAccounts());
     setActiveAccountState(getActiveAccount());
-    setWriteMode(
-      localStorage.getItem(WRITE_MODE_KEY) === "true"
+    // Cek write mode per user
+    const acc = getActiveAccount();
+    const idx = getActiveAccountIndex();
+    setWriteModeState(
+      acc && isWriteModeForUser(idx, acc.password)
     );
   }, []);
 
@@ -43,8 +50,8 @@ const Navbar = ({ links }) => {
   // Switch akun aktif
   const handleSwitchAccount = (idx) => {
     setActiveAccount(idx);
-    setWriteMode(false);
-    localStorage.setItem(WRITE_MODE_KEY, "false");
+    const acc = getAllAccounts()[idx];
+    setWriteModeState(acc && isWriteModeForUser(idx, acc.password));
     refreshAccounts();
     window.location.reload();
   };
@@ -53,9 +60,10 @@ const Navbar = ({ links }) => {
   const handleUnlockWrite = (e) => {
     e.preventDefault();
     if (!activeAccount) return;
+    const idx = getActiveAccountIndex();
     if (writePassword === activeAccount.password) {
-      setWriteMode(true);
-      localStorage.setItem(WRITE_MODE_KEY, "true");
+      setWriteModeForUser(idx, writePassword); // simpan hash password per user
+      setWriteModeState(true);
       setShowWriteModal(false);
       setWritePassword("");
       setWriteError("");
@@ -67,8 +75,9 @@ const Navbar = ({ links }) => {
 
   // Lock write mode
   const handleLockWrite = () => {
-    setWriteMode(false);
-    localStorage.setItem(WRITE_MODE_KEY, "false");
+    const idx = getActiveAccountIndex();
+    clearWriteModeForUser(idx);
+    setWriteModeState(false);
     Swal.fire("Write Mode Dimatikan", "Sekarang hanya bisa read-only.", "info");
   };
 
@@ -140,18 +149,18 @@ const Navbar = ({ links }) => {
               writeMode ? (
                 <button
                   onClick={handleLockWrite}
-                  className="flex items-center gap-2 px-3 py-1 rounded bg-red-100 hover:bg-red-200 text-red-700 font-semibold text-xs border border-red-300 ml-2"
+                  className="flex items-center gap-2 px-3 py-1 rounded bg-green-100 hover:bg-green-200 text-green-700 font-semibold text-xs border border-green-300 ml-2"
                   title="Kunci kembali ke read-only"
                 >
-                  <FiLock /> Lock
+                  <FiUnlock /> Write Mode
                 </button>
               ) : (
                 <button
                   onClick={() => { setShowWriteModal(true); setWritePassword(""); setWriteError(""); }}
-                  className="flex items-center gap-2 px-3 py-1 rounded bg-green-100 hover:bg-green-200 text-green-700 font-semibold text-xs border border-green-300 ml-2"
+                  className="flex items-center gap-2 px-3 py-1 rounded bg-red-100 hover:bg-red-200 text-red-700 font-semibold text-xs border border-red-300 ml-2"
                   title="Aktifkan Write Mode"
                 >
-                  <FiUnlock /> Write Mode
+                  <FiLock /> Read Only
                 </button>
               )
             )}

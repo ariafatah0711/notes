@@ -3,6 +3,7 @@ import { defaultAccounts } from "../config";
 // Key untuk localStorage
 const CUSTOM_ACCOUNTS_KEY = "github_tokens";
 const ACTIVE_ACCOUNT_KEY = "github_token_active";
+const WRITE_MODE_KEY = "write_mode";
 
 // Ambil semua akun custom dari localStorage
 export const getCustomAccounts = () => {
@@ -95,4 +96,48 @@ export const logout = () => {
   }
   // Reset ke akun default pertama
   setActiveAccount(0);
+};
+
+// Cek apakah write mode aktif (hash password)
+export const setWriteMode = (password) => {
+  // Hash sederhana (bisa diganti SHA256 jika mau lebih aman)
+  const hash = btoa(unescape(encodeURIComponent(password)));
+  localStorage.setItem("write_mode", hash);
+};
+
+export const clearWriteMode = () => {
+  localStorage.removeItem("write_mode");
+};
+
+export const isWriteMode = (password) => {
+  const hash = localStorage.getItem("write_mode");
+  if (!hash) return false;
+  return hash === btoa(unescape(encodeURIComponent(password)));
+};
+
+// Ambil object write mode dari localStorage
+export const getWriteModeObj = () => {
+  try {
+    return JSON.parse(localStorage.getItem(WRITE_MODE_KEY)) || {};
+  } catch {
+    return {};
+  }
+};
+
+export const setWriteModeForUser = (idx, password) => {
+  const obj = getWriteModeObj();
+  obj[idx] = btoa(unescape(encodeURIComponent(password)));
+  localStorage.setItem(WRITE_MODE_KEY, JSON.stringify(obj));
+};
+
+export const clearWriteModeForUser = (idx) => {
+  const obj = getWriteModeObj();
+  obj[idx] = false;
+  localStorage.setItem(WRITE_MODE_KEY, JSON.stringify(obj));
+};
+
+export const isWriteModeForUser = (idx, password) => {
+  const obj = getWriteModeObj();
+  if (!obj[idx]) return false;
+  return obj[idx] === btoa(unescape(encodeURIComponent(password)));
 };

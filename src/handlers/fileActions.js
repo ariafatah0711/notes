@@ -1,5 +1,5 @@
 import GlobalSwal from "../utils/GlobalSwal";
-import { isLoggedIn, getActiveAccount } from "../utils/auth";
+import { isLoggedIn, getActiveAccount, getActiveAccountIndex, isWriteModeForUser } from "../utils/auth";
 import { defaultAccounts } from "../config";
 import { fetchGist, updateGist } from "../services/api";
 import { handleGistMessage } from "./apiHandlers";
@@ -17,6 +17,8 @@ function canWrite() {
 
 export const handleAddFile = async ({ currentGist, updateGist, navigate, reload }) => {
   if (!isLoggedIn()) return Swal.fire("Error", "Harus login dulu!", "error");
+  if (!isWriteModeForUser(getActiveAccountIndex(), getActiveAccount().password))
+    return Swal.fire("Error", "Aktifkan Write Mode dulu!", "error");
   if (!canWrite()) return Swal.fire("Error", "Password salah, tidak bisa write!", "error");
 
   const { value: fileName } = await Swal.fire({
@@ -45,6 +47,8 @@ export const handleAddFile = async ({ currentGist, updateGist, navigate, reload 
 
 export const handleSave = async (content, { currentGist, currentFile, setFileContent, reload }) => {
   if (!isLoggedIn()) return Swal.fire("Error", "Harus login dulu!", "error");
+  if (!isWriteModeForUser(getActiveAccountIndex(), getActiveAccount().password))
+    return Swal.fire("Error", "Aktifkan Write Mode dulu!", "error");
   if (!canWrite()) return Swal.fire("Error", "Password salah, tidak bisa write!", "error");
   if (!content.trim()) return Swal.fire("Error", "Konten file tidak boleh kosong!", "error");
   try {
@@ -63,6 +67,8 @@ export const handleSave = async (content, { currentGist, currentFile, setFileCon
 
 export const handleEdit = async (oldName, { id, navigate, reload }) => {
   if (!isLoggedIn()) return Swal.fire("Error", "Harus login dulu!", "error");
+  if (!isWriteModeForUser(getActiveAccountIndex(), getActiveAccount().password))
+    return Swal.fire("Error", "Aktifkan Write Mode dulu!", "error");
   if (!canWrite()) return Swal.fire("Error", "Password salah, tidak bisa write!", "error");
   const { value: newName } = await Swal.fire({
     title: "Edit nama file:",
@@ -91,6 +97,8 @@ export const handleEdit = async (oldName, { id, navigate, reload }) => {
 
 export const handleAddBatchFiles = async ({ currentGist, reload }) => {
   if (!isLoggedIn()) return Swal.fire("Error", "Harus login dulu!", "error");
+  if (!isWriteModeForUser(getActiveAccountIndex(), getActiveAccount().password))
+    return Swal.fire("Error", "Aktifkan Write Mode dulu!", "error");
   if (!canWrite()) return Swal.fire("Error", "Password salah, tidak bisa write!", "error");
   const { value: fileNames } = await Swal.fire({
     html: `<p class="text-lg text-gray-800 text-center font-semibold">Masukkan nama file <br> (pisahkan dengan koma atau spasi):</p>`,
@@ -121,6 +129,8 @@ export const handleAddBatchFiles = async ({ currentGist, reload }) => {
 
 export const handleDeleteFile = async ({ currentGist, currentFile, setCurrentFile, navigate, reload }) => {
   if (!isLoggedIn()) return Swal.fire("Error", "Harus login dulu!", "error");
+  if (!isWriteModeForUser(getActiveAccountIndex(), getActiveAccount().password))
+    return Swal.fire("Error", "Aktifkan Write Mode dulu!", "error");
   if (!canWrite()) return Swal.fire("Error", "Password salah, tidak bisa write!", "error");
   const result = await Swal.fire({
     title: "Hapus file?",
@@ -156,6 +166,8 @@ export const handleSelectFile = (fileName, setSelectedFiles) => {
 
 export const handleDeleteSelectedFiles = async ({ selectedFiles, currentGist, setSelectedFiles, reload }) => {
   if (!isLoggedIn()) return Swal.fire("Error", "Harus login dulu!", "error");
+  if (!isWriteModeForUser(getActiveAccountIndex(), getActiveAccount().password))
+    return Swal.fire("Error", "Aktifkan Write Mode dulu!", "error");
   if (!canWrite()) return Swal.fire("Error", "Password salah, tidak bisa write!", "error");
   if (selectedFiles.length === 0) return Swal.fire("Error", "Harus pilih file dulu!", "error");
   const result = await Swal.fire({

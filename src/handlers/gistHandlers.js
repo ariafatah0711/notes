@@ -1,4 +1,4 @@
-import { isLoggedIn } from "../utils/auth";
+import { isLoggedIn, isWriteModeForUser, getActiveAccount, getActiveAccountIndex } from "../utils/auth";
 import { createGist, deleteGist, fetchGists, updateFolderGist } from "../services/api";
 import GlobalSwal from "../utils/GlobalSwal";
 
@@ -6,6 +6,8 @@ const Swal = GlobalSwal;
 
 export const handleAddGist = async (reload) => {
   if (!isLoggedIn()) return Swal.fire("Error", "Harus login dulu!", "error");
+  if (!isWriteModeForUser(getActiveAccountIndex(), getActiveAccount().password))
+    return Swal.fire("Error", "Aktifkan Write Mode dulu!", "error");
 
   const { value: folderName } = await Swal.fire({
     title: "Nama folder baru:",
@@ -34,6 +36,8 @@ export const handleAddGist = async (reload) => {
 
 export const handleEditGist = async (id, oldName, reload) => {
   if (!isLoggedIn()) return Swal.fire("Error", "Harus login dulu!", "error");
+  if (!isWriteModeForUser(getActiveAccountIndex(), getActiveAccount().password))
+    return Swal.fire("Error", "Aktifkan Write Mode dulu!", "error");
 
   const { value: newName } = await Swal.fire({
     title: "Edit nama folder:",
@@ -63,6 +67,8 @@ export const handleEditGist = async (id, oldName, reload) => {
 
 export const handleDeleteGist = async (id, reload) => {
   if (!isLoggedIn()) return Swal.fire("Error", "Harus login dulu!", "error");
+  if (!isWriteModeForUser(getActiveAccountIndex(), getActiveAccount().password))
+    return Swal.fire("Error", "Aktifkan Write Mode dulu!", "error");
 
   const result = await Swal.fire({
     title: "Hapus Folder?",
