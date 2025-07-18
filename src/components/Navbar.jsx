@@ -10,6 +10,7 @@ import {
   isWriteModeForUser,
   getActiveAccountIndex,
   addCustomUser,
+  removeCustomAccount,
 } from "../utils/auth";
 import packageJson from "../../package.json";
 import GlobalSwal from "../utils/GlobalSwal";
@@ -32,6 +33,8 @@ const Navbar = ({ links }) => {
   const [newUserName, setNewUserName] = useState("");
   const [newUserPassword, setNewUserPassword] = useState("");
   const [addUserError, setAddUserError] = useState("");
+  const [showDeleteUserModal, setShowDeleteUserModal] = useState(false);
+  const [selectedDeleteUsers, setSelectedDeleteUsers] = useState([]);
   const navigate = useNavigate();
 
   // Load accounts, active account, and write mode
@@ -102,6 +105,35 @@ const Navbar = ({ links }) => {
     window.location.reload();
   };
 
+  // Helper: ambil semua user lokal
+  const localUsers = accounts.filter(acc => acc.type === 'local');
+
+  // Handler hapus user lokal
+  const handleDeleteSelectedUsers = async () => {
+    if (selectedDeleteUsers.length === 0) return;
+    const result = await Swal.fire({
+      title: `Yakin ingin menghapus ${selectedDeleteUsers.length} user lokal?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Hapus',
+      cancelButtonText: 'Batal',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#aaa',
+    });
+    if (!result.isConfirmed) return;
+    // Hapus dari localStorage (index relatif ke custom/local)
+    const customAccounts = getAllAccounts().filter(acc => acc.type === 'local');
+    selectedDeleteUsers.forEach(name => {
+      const idx = customAccounts.findIndex(acc => acc.name === name);
+      if (idx !== -1) removeCustomAccount(idx);
+    });
+    setShowDeleteUserModal(false);
+    setSelectedDeleteUsers([]);
+    refreshAccounts();
+    setActiveAccount(0); // fallback ke default
+    window.location.reload();
+  };
+
   return (
     <nav className="fixed top-0 left-0 w-full bg-white/80 backdrop-blur shadow z-50 border-b border-gray-200">
       <div className="max-w-5xl mx-auto flex items-center justify-between px-4 py-2">
@@ -129,7 +161,7 @@ const Navbar = ({ links }) => {
               </button>
             ) : (
               <button
-                onClick={() => { setShowWriteModal(true); setWritePassword(""); setWriteError(""); }}
+                onClick={() => { setShowWriteModal(true); setShowAddUserModal(false); setWritePassword(""); setWriteError(""); }}
                 className="w-28 flex items-center gap-2 px-3 py-1 rounded bg-red-100 hover:bg-red-200 text-red-700 font-semibold text-xs border border-red-300"
                 title="Aktifkan Write Mode"
               >
@@ -163,14 +195,23 @@ const Navbar = ({ links }) => {
                     </div>
                   ))}
                   {/* Tombol tambah user lokal di bawah list akun (dropdown) */}
-                  <div className="px-4 py-2">
+                  <div className="px-4 py-2 flex flex-col gap-2">
                     <button
                       className="w-full px-2 py-1 rounded bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs border border-blue-300"
-                      onClick={() => setShowAddUserModal(true)}
+                      onClick={() => { setShowAddUserModal(true); setShowWriteModal(false); }}
                       title="Tambah User Lokal"
                     >
                       + User Lokal
                     </button>
+                    {localUsers.length > 0 && (
+                      <button
+                        className="w-full px-2 py-1 rounded bg-red-100 hover:bg-red-200 text-red-700 text-xs border border-red-300"
+                        onClick={() => { setShowDeleteUserModal(true); setShowAddUserModal(false); setShowWriteModal(false); }}
+                        title="Hapus User Lokal"
+                      >
+                        Hapus User Lokal
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -201,17 +242,30 @@ const Navbar = ({ links }) => {
             {/* Tombol tambah user lokal di bawah list akun (mobile) */}
             <button
               className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold border border-blue-600 shadow transition"
-              onClick={() => setShowAddUserModal(true)}
+              onClick={() => { setShowAddUserModal(true); setShowWriteModal(false); }}
               title="Tambah User Lokal"
             >
               <FiUser className="text-lg" /> + User Lokal
             </button>
+            {localUsers.length > 0 && (
+              <button
+                className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 text-sm font-semibold border border-red-300 shadow transition"
+                onClick={() => { setShowDeleteUserModal(true); setShowAddUserModal(false); setShowWriteModal(false); }}
+                title="Hapus User Lokal"
+              >
+                <FiUser className="text-lg" /> Hapus User Lokal
+              </button>
+            )}
           </div>
         </div>
       )}
       {/* Modal Write Mode */}
       {showWriteModal && (
-        <form onSubmit={handleUnlockWrite} className="fixed top-20 right-6 z-50 bg-white rounded-lg shadow-lg p-6 max-w-xs w-full border border-gray-200 animate-slide-in">
+        <form
+          onSubmit={handleUnlockWrite}
+          className="fixed top-20 right-6 z-50 bg-white rounded-lg shadow-lg p-6 max-w-xs w-full border border-gray-200 animate-slide-in"
+          onClick={e => e.stopPropagation()}
+        >
           <button
             onClick={() => setShowWriteModal(false)}
             type="button"
@@ -250,7 +304,11 @@ const Navbar = ({ links }) => {
       )}
       {/* Modal tambah user lokal: Username & API */}
       {showAddUserModal && (
-        <form onSubmit={handleAddCustomUser} className="fixed top-24 right-6 z-50 bg-white rounded-lg shadow-lg p-6 max-w-xs w-full border border-gray-200 animate-slide-in">
+        <form
+          onSubmit={handleAddCustomUser}
+          className="fixed top-20 right-6 z-50 bg-white rounded-lg shadow-lg p-6 max-w-xs w-full border border-gray-200 animate-slide-in"
+          onClick={e => e.stopPropagation()}
+        >
           <button
             onClick={() => setShowAddUserModal(false)}
             type="button"
@@ -294,6 +352,52 @@ const Navbar = ({ links }) => {
             Jangan centang scope lain, cukup <b>gist</b>.<br />
             Token ini hanya untuk akses Gist, tidak bisa edit repo utama kamu.
           </p>
+        </form>
+      )}
+      {/* Modal hapus user lokal */}
+      {showDeleteUserModal && (
+        <form
+          className="fixed top-20 right-6 z-50 bg-white rounded-lg shadow-lg p-6 max-w-xs w-full border border-gray-200 animate-slide-in"
+          onClick={e => e.stopPropagation()}
+          onSubmit={e => { e.preventDefault(); handleDeleteSelectedUsers(); }}
+        >
+          <button
+            onClick={() => setShowDeleteUserModal(false)}
+            type="button"
+            className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-2xl"
+            title="Tutup"
+          >
+            &times;
+          </button>
+          <h3 className="text-lg font-bold mb-4 text-red-700 flex items-center gap-2">
+            <FiUser /> Hapus User Lokal
+          </h3>
+          {localUsers.length === 0 ? (
+            <div className="text-gray-500 text-sm mb-2">Tidak ada user lokal.</div>
+          ) : (
+            <div className="flex flex-col gap-2 mb-4 max-h-40 overflow-y-auto">
+              {localUsers.map((acc, idx) => (
+                <label key={acc.name} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={selectedDeleteUsers.includes(acc.name)}
+                    onChange={e => {
+                      if (e.target.checked) setSelectedDeleteUsers([...selectedDeleteUsers, acc.name]);
+                      else setSelectedDeleteUsers(selectedDeleteUsers.filter(n => n !== acc.name));
+                    }}
+                  />
+                  <span className="font-medium text-blue-700">{acc.name}</span>
+                </label>
+              ))}
+            </div>
+          )}
+          <button
+            type="submit"
+            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors disabled:opacity-50"
+            disabled={selectedDeleteUsers.length === 0}
+          >
+            Hapus
+          </button>
         </form>
       )}
     </nav>

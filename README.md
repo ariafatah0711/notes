@@ -1,6 +1,6 @@
 # How to Run
 
-Untuk menjalankan aplikasi ini (frontend-only, langsung ke GitHub Gist API), ikuti langkah-langkah berikut:
+Aplikasi ini adalah frontend-only (React + Vite), langsung terhubung ke GitHub Gist API. Mendukung multi user (default dari env, custom lokal/token, hapus user lokal, dsb).
 
 ## Install & Jalankan Frontend
 ```bash
@@ -11,10 +11,6 @@ npm run dev
 
 # preview production
 npm run build; npm run preview
-
-# deploy (GitHub Pages)
-# pastikan sudah mengatur base path dan homepage di package.json
-npm run deploy
 ```
 
 ### Config Base Path
@@ -27,35 +23,70 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: "/notes/", // ganti sesuai repo GitHub Pages
+  base: "/", // untuk Vercel, cukup "/"
 });
 ```
 
-### Set Environment Variables
-Tambahkan file `.env` di root folder dengan isi seperti ini:
+### Set Environment Variables (Multi Akun)
+Buat file `.env` di root folder dengan format berikut:
 
 ```
-VITE_NOTES_PASSWORD=<password-untuk-default-token>
-VITE_GIST_TOKEN=<default-github-token-opsional>
+VITE_ACCOUNT_1_USER=namauser1
+VITE_ACCOUNT_1_PASS=password1
+VITE_ACCOUNT_1_API=token_gist_1
+
+VITE_ACCOUNT_2_USER=namauser2
+VITE_ACCOUNT_2_PASS=password2
+VITE_ACCOUNT_2_API=token_gist_2
+
+# Tambah lagi untuk akun berikutnya (urut 3, 4, dst)
 ```
 
-- `VITE_NOTES_PASSWORD`: Password untuk mengakses default token (opsional, jika ingin fitur login dengan password).
-- `VITE_GIST_TOKEN`: (Opsional) Token GitHub default yang bisa digunakan user dengan password di atas.
+- **USER**: Username akun default
+- **PASS**: Password login akun default
+- **API**: Personal Access Token GitHub (scope hanya `gist`)
 
 > **Catatan:**
-> - Sekarang aplikasi langsung terhubung ke GitHub Gist API, tidak perlu backend/server sendiri.
-> - Semua request API dilakukan dari frontend (React) ke GitHub Gist API.
+> - Token API harus dibuat di GitHub dengan scope `gist` saja (lihat petunjuk di aplikasi saat tambah user lokal).
+> - User juga bisa menambah user lokal/token langsung dari aplikasi (tidak perlu di .env).
 
-### deploy with github pages
-<!-- - jangan lupa allow ini https://github.com/<user>/<repo>/security/secret-scanning/unblock-secret/3012Slc4e5ZTEYFbZ73VBlJfiGV -->
-<!-- - disable push protection di setting > advance security > push protection -->
-- disable Secret Protection, and push protection di setting > advance security
+### Fitur
+- Multi akun default dari .env (bisa login dengan username/password)
+- Tambah user lokal/token (langsung dari aplikasi)
+- Hapus user lokal/token
+- Write mode (untuk akun default, aktifkan dengan password)
+- Semua request langsung ke GitHub Gist API (tidak ada backend)
+
+### Deploy with Vercel (Rekomendasi)
+#### Deploy via Dashboard (GUI)
+1. **Login ke [Vercel](https://vercel.com/)** dan hubungkan repo GitHub kamu.
+2. **Set Environment Variables** di dashboard Vercel (menu Project > Settings > Environment Variables):
+   - Tambahkan semua variabel `VITE_ACCOUNT_1_USER`, `VITE_ACCOUNT_1_PASS`, `VITE_ACCOUNT_1_API`, dst sesuai kebutuhan.
+3. **Deploy**: Vercel akan otomatis build dan deploy project kamu.
+4. **Base path** di `vite.config.js` cukup `/` (default).
+
+#### Deploy via Vercel CLI
+```bash
+npm install -g vercel
+vercel login
+vercel link # hubungkan ke project Vercel
+# Set env (bisa juga dari dashboard):
+vercel env add VITE_ACCOUNT_1_USER production
+vercel env add VITE_ACCOUNT_1_PASS production
+vercel env add VITE_ACCOUNT_1_API production
+# dst untuk akun berikutnya
+
+# Deploy ke production
+vercel --prod
+```
+
+> **Kenapa tidak GitHub Pages?**
+> - GitHub Pages akan error (secret leak) jika ada token di env, karena token dianggap secret oleh GitHub.
+> - Vercel lebih aman untuk aplikasi yang butuh token di env.
 
 ---
 
-# Belajar
-
-## How to Setup React and Vite
+# Belajar / Setup Awal React + Vite
 ```bash
 npm create vite@latest notes --template react
 cd notes
@@ -82,26 +113,7 @@ npm run deploy
 
 ---
 
-# old
-## How to Setup Vercel for Backend
-```bash
-cd backend
-npm install -g vercel  # Install Vercel CLI
-vercel login           # Login ke akun Vercel
-vercel link             # Hubungkan proyek dengan akun Vercel
-vercel env add GITHUB_TOKEN  # Tambahkan token GitHub ke Vercel
-vercel                  # Deploy pertama kali
-vercel --prod           # Deploy ke production
-vercel dev
-```
-
-Jika perlu memperbarui konfigurasi atau variable environment, pastikan melakukan perintah berikut:
-
-```bash
-vercel env pull         # Mengambil env dari Vercel
-```
-
-## tailwind
+# tailwind
 ```bash
 npm install react-router-dom axios tailwindcss
 
