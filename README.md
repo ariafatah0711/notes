@@ -2,6 +2,12 @@
 
 Aplikasi ini adalah frontend-only (React + Vite), langsung terhubung ke GitHub Gist API. Mendukung multi user (default dari env, custom lokal/token, hapus user lokal, dsb).
 
+## clone this repo
+```bash
+git clone https://github.com/ariafatah0711/notes
+cd notes
+```
+
 ## Install & Jalankan Frontend
 ```bash
 npm install
