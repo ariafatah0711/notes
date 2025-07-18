@@ -30,6 +30,9 @@ html,
 body {
     margin: 0 !important;
     padding: 0 !important;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    scroll-behavior: smooth;
 }
 
 /* app */
@@ -86,4 +89,8 @@ body::-webkit-scrollbar-thumb:hover {
     body::-webkit-scrollbar-thumb:hover {
         background: linear-gradient(180deg, #374151, #1f2937);
     }
+}
+
+.main-content {
+    min-height: calc(100vh - 80px);
 }

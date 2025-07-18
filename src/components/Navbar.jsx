@@ -80,32 +80,54 @@ const Navbar = ({ links }) => {
       <div className="max-w-5xl mx-auto flex items-center justify-between px-4 py-2"> 
         {/* Judul */}
         <div className="flex items-center gap-2">
-          <a href="/" className="font-bold text-blue-700 text-lg hover:underline hover:text-blue-900 transition">
+          <a href="https://ariaf.my.id" className="font-bold text-blue-700 text-lg hover:underline hover:text-blue-900 transition">
             {packageJson.name}
           </a>
           <span className="ml-2 text-xs text-gray-400">v{packageJson.version}</span>
         </div>
         {/* Link Navigasi */}
         <div className="hidden md:flex gap-6">
-          {links.map(link => (
-            <a key={link.path} href={link.path} className="text-gray-700 hover:text-blue-600 font-medium transition">{link.name}</a>
-          ))}
+          {links.map(link => {
+            let url = link.path;
+            let isExternal = false;
+            // Deteksi jika sudah http/https
+            if (url.startsWith("http://") || url.startsWith("https://")) {
+              isExternal = true;
+            } else if (/^[\w.-]+\.[a-zA-Z]{2,}/.test(url)) { // domain tanpa protokol
+              url = "https://" + url;
+              isExternal = true;
+            }
+            return (
+              <a
+                key={link.path}
+                href={url}
+                className="text-gray-700 hover:text-blue-600 font-medium transition"
+                // {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                {...(isExternal ? { rel: "noopener noreferrer" } : {})}
+              >
+                {link.name}
+              </a>
+            );
+          })}
         </div>
         {/* Status & Tombol */}
         <div className="flex items-center gap-3">
-          {isCustomToken
-            ? <span className="text-green-600 font-semibold text-xs bg-green-100 px-2 py-1 rounded">Custom Token</span>
-            : loggedIn
-              ? <span className="text-green-600 font-semibold text-xs bg-green-100 px-2 py-1 rounded">Logged In</span>
-              : null
-          }
-          <button
-            onClick={loggedIn || isCustomToken ? handleLogout : handleLogin}
-            className={`flex items-center gap-2 px-4 py-2 rounded transition font-semibold ${loggedIn || isCustomToken ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'} text-white`}
-          >
-            {loggedIn || isCustomToken ? <FiLogOut /> : <FiLogIn />}
-            {loggedIn || isCustomToken ? 'Logout' : 'Login'}
-          </button>
+          {/* Status & Tombol hanya di desktop */}
+          <div className="hidden md:flex items-center gap-3">
+            {isCustomToken
+              ? <span className="text-green-600 font-semibold text-xs bg-green-100 px-2 py-1 rounded">Custom Token</span>
+              : loggedIn
+                ? <span className="text-green-600 font-semibold text-xs bg-green-100 px-2 py-1 rounded">Logged In</span>
+                : null
+            }
+            <button
+              onClick={loggedIn || isCustomToken ? handleLogout : handleLogin}
+              className={`flex items-center gap-2 px-4 py-2 rounded transition font-semibold ${loggedIn || isCustomToken ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'} text-white`}
+            >
+              {loggedIn || isCustomToken ? <FiLogOut /> : <FiLogIn />}
+              {loggedIn || isCustomToken ? 'Logout' : 'Login'}
+            </button>
+          </div>
           {/* Hamburger menu for mobile */}
           <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden text-gray-700 ml-2">
             <FiMenu className="h-6 w-6" />
@@ -115,9 +137,26 @@ const Navbar = ({ links }) => {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="md:hidden bg-white shadow border-t border-gray-200 px-4 py-2">
-          {links.map(link => (
-            <a key={link.path} href={link.path} className="block py-2 text-gray-700 hover:text-blue-600 font-medium">{link.name}</a>
-          ))}
+          {links.map(link => {
+            let url = link.path;
+            let isExternal = false;
+            if (url.startsWith("http://") || url.startsWith("https://")) {
+              isExternal = true;
+            } else if (/^[\w.-]+\.[a-zA-Z]{2,}/.test(url)) {
+              url = "https://" + url;
+              isExternal = true;
+            }
+            return (
+              <a
+                key={link.path}
+                href={url}
+                className="block py-2 text-gray-700 hover:text-blue-600 font-medium"
+                {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              >
+                {link.name}
+              </a>
+            );
+          })}
           <button
             onClick={loggedIn || isCustomToken ? handleLogout : handleLogin}
             className={`w-full flex items-center justify-center gap-2 px-4 py-2 mt-2 rounded transition font-semibold ${loggedIn || isCustomToken ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'} text-white`}
