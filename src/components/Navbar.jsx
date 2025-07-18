@@ -149,7 +149,7 @@ const Navbar = ({ links }) => {
               writeMode ? (
                 <button
                   onClick={handleLockWrite}
-                  className="flex items-center gap-2 px-3 py-1 rounded bg-green-100 hover:bg-green-200 text-green-700 font-semibold text-xs border border-green-300 ml-2"
+                  className="w-28 flex items-center gap-2 px-3 py-1 rounded bg-green-100 hover:bg-green-200 text-green-700 font-semibold text-xs border border-green-300 ml-2"
                   title="Kunci kembali ke read-only"
                 >
                   <FiUnlock /> Write Mode
@@ -157,7 +157,7 @@ const Navbar = ({ links }) => {
               ) : (
                 <button
                   onClick={() => { setShowWriteModal(true); setWritePassword(""); setWriteError(""); }}
-                  className="flex items-center gap-2 px-3 py-1 rounded bg-red-100 hover:bg-red-200 text-red-700 font-semibold text-xs border border-red-300 ml-2"
+                  className="w-28 flex items-center gap-2 px-3 py-1 rounded bg-red-100 hover:bg-red-200 text-red-700 font-semibold text-xs border border-red-300 ml-2"
                   title="Aktifkan Write Mode"
                 >
                   <FiLock /> Read Only
