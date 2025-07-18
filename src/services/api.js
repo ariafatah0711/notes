@@ -8,10 +8,10 @@ const GIST_API = "https://api.github.com/gists";
 // Helper untuk ambil token dari akun aktif
 function getGithubToken() {
   const acc = getActiveAccount();
-  // Custom: token, Default: api
+  // Custom: token, Default/API/Local: api
   if (!acc) return "";
   if (acc.type === "github") return acc.token;
-  if (acc.type === "api") return acc.api;
+  if (acc.type === "api" || acc.type === "local") return acc.api;
   return "";
 }
 

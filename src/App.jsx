@@ -5,16 +5,11 @@ import FolderPage from "./pages/FolderPage";
 import NotFound from "./components/NotFound";
 
 function App() {
-  const links = [
-    { name: "github", path: "https://github.com/ariafatah0711/notes" },
-    { name: "Info", path: "ariaf.my.id/blog/notes" },
-  ];
-
   return (
     <Router>
       {/* <Navbar /> */}
-      <Navbar links={links} />
-      <div className="pt-20 sm:pt-20"> {/* Tambahkan padding di sini */}
+      <Navbar />
+      <div className="pt-15 sm:pt-15"> {/* Tambahkan padding di sini */}
         <Routes>
           {/* Tambahkan route default agar "/" diarahkan ke "/notes" */}
           {/* <Route path="/" element={<Navigate to="/notes" />} /> */}

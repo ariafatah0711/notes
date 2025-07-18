@@ -33,6 +33,14 @@ export const removeCustomAccount = (index) => {
   setCustomAccounts(accounts);
 };
 
+// Tambah custom user (username+password, bukan token)
+export const addCustomUser = (user) => {
+  // user: { name, password, type: 'local' }
+  const accounts = getCustomAccounts();
+  accounts.push({ ...user, type: "local" });
+  setCustomAccounts(accounts);
+};
+
 // Gabungkan semua akun (default + custom)
 export const getAllAccounts = () => {
   return [
@@ -136,8 +144,12 @@ export const clearWriteModeForUser = (idx) => {
   localStorage.setItem(WRITE_MODE_KEY, JSON.stringify(obj));
 };
 
+// Ubah isWriteModeForUser agar jika akun type 'local', selalu true
 export const isWriteModeForUser = (idx, password) => {
   const obj = getWriteModeObj();
+  const all = getAllAccounts();
+  const acc = all[idx];
+  if (acc?.type === "local") return true;
   if (!obj[idx]) return false;
   return obj[idx] === btoa(unescape(encodeURIComponent(password)));
 };

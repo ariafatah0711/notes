@@ -9,6 +9,7 @@ import {
   clearWriteModeForUser,
   isWriteModeForUser,
   getActiveAccountIndex,
+  addCustomUser,
 } from "../utils/auth";
 import packageJson from "../../package.json";
 import GlobalSwal from "../utils/GlobalSwal";
@@ -27,6 +28,10 @@ const Navbar = ({ links }) => {
   const [writePassword, setWritePassword] = useState("");
   const [writeError, setWriteError] = useState("");
   const [writeMode, setWriteModeState] = useState(false);
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [newUserName, setNewUserName] = useState("");
+  const [newUserPassword, setNewUserPassword] = useState("");
+  const [addUserError, setAddUserError] = useState("");
   const navigate = useNavigate();
 
   // Load accounts, active account, and write mode
@@ -81,6 +86,22 @@ const Navbar = ({ links }) => {
     Swal.fire("Write Mode Dimatikan", "Sekarang hanya bisa read-only.", "info");
   };
 
+  const handleAddCustomUser = (e) => {
+    e.preventDefault();
+    if (!newUserName || !newUserPassword) {
+      setAddUserError("Username dan API wajib diisi!");
+      return;
+    }
+    addCustomUser({ name: newUserName, api: newUserPassword, type: 'local' });
+    setShowAddUserModal(false);
+    setNewUserName("");
+    setNewUserPassword("");
+    setAddUserError("");
+    refreshAccounts();
+    setActiveAccount(getAllAccounts().length - 1);
+    window.location.reload();
+  };
+
   return (
     <nav className="fixed top-0 left-0 w-full bg-white/80 backdrop-blur shadow z-50 border-b border-gray-200">
       <div className="max-w-5xl mx-auto flex items-center justify-between px-4 py-2">
@@ -92,30 +113,30 @@ const Navbar = ({ links }) => {
           <span className="ml-2 text-xs text-gray-400">v{packageJson.version}</span>
         </div>
         {/* Link Navigasi */}
-        <div className="hidden md:flex gap-6">
-          {links.map(link => {
-            let url = link.path;
-            let isExternal = false;
-            if (url.startsWith("http://") || url.startsWith("https://")) {
-              isExternal = true;
-            } else if (/^[\w.-]+\.[a-zA-Z]{2,}/.test(url)) {
-              url = "https://" + url;
-              isExternal = true;
-            }
-            return (
-              <a
-                key={link.path}
-                href={url}
-                className="text-gray-700 hover:text-blue-600 font-medium transition"
-                {...(isExternal ? { rel: "noopener noreferrer" } : {})}
-              >
-                {link.name}
-              </a>
-            );
-          })}
-        </div>
+        {/* <div className="hidden md:flex gap-6"> */}
+        {/* </div> */}
         {/* Status & Tombol */}
         <div className="flex items-center gap-3">
+          {/* Tombol Write Mode/Lock di kiri (desktop) */}
+          {activeAccount && activeAccount.type === "api" && (
+            writeMode ? (
+              <button
+                onClick={handleLockWrite}
+                className="w-28 flex items-center gap-2 px-3 py-1 rounded bg-green-100 hover:bg-green-200 text-green-700 font-semibold text-xs border border-green-300"
+                title="Kunci kembali ke read-only"
+              >
+                <FiUnlock /> Write Mode
+              </button>
+            ) : (
+              <button
+                onClick={() => { setShowWriteModal(true); setWritePassword(""); setWriteError(""); }}
+                className="w-28 flex items-center gap-2 px-3 py-1 rounded bg-red-100 hover:bg-red-200 text-red-700 font-semibold text-xs border border-red-300"
+                title="Aktifkan Write Mode"
+              >
+                <FiLock /> Read Only
+              </button>
+            )
+          )}
           {/* Dropdown akun */}
           <div className="hidden md:flex items-center gap-3 relative">
             {activeAccount && (
@@ -137,32 +158,22 @@ const Navbar = ({ links }) => {
                       <div className="flex items-center gap-2">
                         {activeAccount.name === acc.name && activeAccount.type === acc.type ? <span className="text-green-500">●</span> : <span className="text-gray-300">○</span>}
                         <span className="font-medium text-sm">{acc.name}</span>
-                        <span className="text-xs text-gray-400">{acc.type === "api" ? "Default" : "Custom"}</span>
+                        <span className="text-xs text-gray-400">{acc.type === "api" ? "Default" : acc.type === "local" ? "Lokal" : "Custom"}</span>
                       </div>
                     </div>
                   ))}
+                  {/* Tombol tambah user lokal di bawah list akun (dropdown) */}
+                  <div className="px-4 py-2">
+                    <button
+                      className="w-full px-2 py-1 rounded bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs border border-blue-300"
+                      onClick={() => setShowAddUserModal(true)}
+                      title="Tambah User Lokal"
+                    >
+                      + User Lokal
+                    </button>
+                  </div>
                 </div>
               </div>
-            )}
-            {/* Tombol Write Mode/Lock */}
-            {activeAccount && activeAccount.type === "api" && (
-              writeMode ? (
-                <button
-                  onClick={handleLockWrite}
-                  className="w-28 flex items-center gap-2 px-3 py-1 rounded bg-green-100 hover:bg-green-200 text-green-700 font-semibold text-xs border border-green-300 ml-2"
-                  title="Kunci kembali ke read-only"
-                >
-                  <FiUnlock /> Write Mode
-                </button>
-              ) : (
-                <button
-                  onClick={() => { setShowWriteModal(true); setWritePassword(""); setWriteError(""); }}
-                  className="w-28 flex items-center gap-2 px-3 py-1 rounded bg-red-100 hover:bg-red-200 text-red-700 font-semibold text-xs border border-red-300 ml-2"
-                  title="Aktifkan Write Mode"
-                >
-                  <FiLock /> Read Only
-                </button>
-              )
             )}
           </div>
           {/* Hamburger menu for mobile */}
@@ -173,27 +184,29 @@ const Navbar = ({ links }) => {
       </div>
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden bg-white shadow border-t border-gray-200 px-4 py-2">
-          {links.map(link => {
-            let url = link.path;
-            let isExternal = false;
-            if (url.startsWith("http://") || url.startsWith("https://")) {
-              isExternal = true;
-            } else if (/^[\w.-]+\.[a-zA-Z]{2,}/.test(url)) {
-              url = "https://" + url;
-              isExternal = true;
-            }
-            return (
-              <a
-                key={link.path}
-                href={url}
-                className="block py-2 text-gray-700 hover:text-blue-600 font-medium"
-                {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+        <div className="md:hidden bg-white shadow border-t border-gray-200 px-4 py-8 flex flex-col gap-6">
+          {/* Section: List akun untuk switch */}
+          <div className="flex flex-col gap-1 mb-2">
+            {accounts.length > 1 && accounts.map((acc, idx) => (
+              <button
+                key={idx}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm border transition font-medium shadow-sm ${activeAccount.name === acc.name && activeAccount.type === acc.type ? "bg-blue-100 text-blue-700 border-blue-300" : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-blue-50"}`}
+                onClick={() => handleSwitchAccount(idx)}
               >
-                {link.name}
-              </a>
-            );
-          })}
+                {activeAccount.name === acc.name && activeAccount.type === acc.type ? <span className="text-green-500">●</span> : <span className="text-gray-300">○</span>}
+                <span className="font-medium">{acc.name}</span>
+                <span className="text-xs text-gray-400">{acc.type === "api" ? "Default" : acc.type === "local" ? "Lokal" : "Custom"}</span>
+              </button>
+            ))}
+            {/* Tombol tambah user lokal di bawah list akun (mobile) */}
+            <button
+              className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold border border-blue-600 shadow transition"
+              onClick={() => setShowAddUserModal(true)}
+              title="Tambah User Lokal"
+            >
+              <FiUser className="text-lg" /> + User Lokal
+            </button>
+          </div>
         </div>
       )}
       {/* Modal Write Mode */}
@@ -232,6 +245,54 @@ const Navbar = ({ links }) => {
             Masukkan password akun untuk mengaktifkan mode tulis (write mode).<br />
             Setelah aktif, kamu bisa menambah/mengedit file.<br />
             Jangan lupa lock kembali jika sudah selesai.
+          </p>
+        </form>
+      )}
+      {/* Modal tambah user lokal: Username & API */}
+      {showAddUserModal && (
+        <form onSubmit={handleAddCustomUser} className="fixed top-24 right-6 z-50 bg-white rounded-lg shadow-lg p-6 max-w-xs w-full border border-gray-200 animate-slide-in">
+          <button
+            onClick={() => setShowAddUserModal(false)}
+            type="button"
+            className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-2xl"
+            title="Tutup"
+          >
+            &times;
+          </button>
+          <h3 className="text-lg font-bold mb-4 text-blue-700 flex items-center gap-2">
+            Tambah User Lokal
+          </h3>
+          <label className="block mb-2 text-sm font-medium text-gray-700">Username</label>
+          <input
+            type="text"
+            className="w-full border border-gray-300 rounded px-3 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            placeholder="Username..."
+            value={newUserName}
+            onChange={e => setNewUserName(e.target.value)}
+            autoFocus
+          />
+          <label className="block mb-2 text-sm font-medium text-gray-700">API</label>
+          <input
+            type="text"
+            className="w-full border border-gray-300 rounded px-3 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            placeholder="Personal Access Token..."
+            value={newUserPassword}
+            onChange={e => setNewUserPassword(e.target.value)}
+          />
+          {addUserError && <div className="text-red-500 text-xs mb-2">{addUserError}</div>}
+          <div className="flex gap-2 mb-2">
+            <button
+              type="submit"
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+            >
+              Tambah
+            </button>
+          </div>
+          <p className="text-xs text-gray-500 mt-2">
+            <b>API/Token harus dari GitHub</b> dengan scope <b>gist</b> saja.<br />
+            <a href='https://github.com/settings/tokens/new?scopes=gist&description=notes-gist' target='_blank' rel='noopener noreferrer' className='text-blue-600 underline'>Buat token di sini</a>.<br />
+            Jangan centang scope lain, cukup <b>gist</b>.<br />
+            Token ini hanya untuk akses Gist, tidak bisa edit repo utama kamu.
           </p>
         </form>
       )}
