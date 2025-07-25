@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { fetchGists } from "../services/api";
+import { getActiveAccountIndex } from "../utils/auth";
 
 export const useGists = () => {
   const [gists, setGists] = useState([]);
@@ -24,7 +25,7 @@ export const useGists = () => {
 
   useEffect(() => {
     loadGists();
-  }, []);
+  }, [getActiveAccountIndex()]);
 
   return { gists, loading, reload: loadGists };
 };

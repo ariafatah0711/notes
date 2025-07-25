@@ -7,9 +7,17 @@ import { setActiveAccountByQuery } from "./utils/auth";
 import React from "react";
 
 function App() {
-  // Panggil saat mount
   React.useEffect(() => {
+    // Panggil sekali saat mount
     setActiveAccountByQuery();
+    // Panggil setiap kali URL berubah (query param berubah)
+    const onUrlChange = () => setActiveAccountByQuery();
+    window.addEventListener("popstate", onUrlChange);
+    window.addEventListener("hashchange", onUrlChange);
+    return () => {
+      window.removeEventListener("popstate", onUrlChange);
+      window.removeEventListener("hashchange", onUrlChange);
+    };
   }, []);
   return (
     <Router>

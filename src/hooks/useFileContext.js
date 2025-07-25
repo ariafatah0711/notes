@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useGists } from "./useGists";
+import { getActiveAccountIndex } from "../utils/auth";
 
 export function useFileContext() {
   const { folderName } = useParams();
@@ -21,7 +22,7 @@ export function useFileContext() {
     const gist = gists.find((g) => g.folderName === folderName);
     setCurrentGist(gist || null);
     setFilteredFiles(Object.keys(gist?.files || {}));
-  }, [gists, folderName]);
+  }, [gists, folderName, getActiveAccountIndex()]);
 
   return {
     gists,

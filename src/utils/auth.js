@@ -189,10 +189,12 @@ export const setActiveAccountByQuery = () => {
       const idx = getAccountIndexByName(user);
       if (idx !== -1) {
         setActiveAccount(idx);
-      } else {
-        // User tidak ditemukan, fallback ke default dan hapus ?user
-        setActiveAccount(0);
+        return;
       }
     }
-  } catch {}
+    // Jika user kosong, tidak valid, atau tidak ada, fallback ke default
+    setActiveAccount(0);
+  } catch {
+    setActiveAccount(0);
+  }
 };
