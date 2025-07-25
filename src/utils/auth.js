@@ -52,6 +52,26 @@ export const getAllAccounts = () => {
 // Set akun aktif (index di getAllAccounts)
 export const setActiveAccount = (index) => {
   localStorage.setItem(ACTIVE_ACCOUNT_KEY, index);
+  // Update ?user in URL
+  try {
+    if (index === 0) {
+      // Hapus ?user jika user default
+      const params = new URLSearchParams(window.location.search);
+      params.delete("user");
+      const q = params.toString();
+      const newUrl = `${window.location.pathname}${q ? `?${q}` : ""}${window.location.hash}`;
+      window.history.replaceState({}, "", newUrl);
+    } else {
+      const all = getAllAccounts();
+      const acc = all[index];
+      if (acc && acc.name) {
+        const params = new URLSearchParams(window.location.search);
+        params.set("user", acc.name);
+        const newUrl = `${window.location.pathname}?${params.toString()}${window.location.hash}`;
+        window.history.replaceState({}, "", newUrl);
+      }
+    }
+  } catch {}
 };
 
 // Ambil index akun aktif
@@ -152,4 +172,27 @@ export const isWriteModeForUser = (idx, password) => {
   if (acc?.type === "local") return true;
   if (!obj[idx]) return false;
   return obj[idx] === btoa(unescape(encodeURIComponent(password)));
+};
+
+// Cari index akun berdasarkan nama
+export const getAccountIndexByName = (username) => {
+  const all = getAllAccounts();
+  return all.findIndex((acc) => acc.name === username);
+};
+
+// Set active account by ?user query param
+export const setActiveAccountByQuery = () => {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const user = params.get("user");
+    if (user) {
+      const idx = getAccountIndexByName(user);
+      if (idx !== -1) {
+        setActiveAccount(idx);
+      } else {
+        // User tidak ditemukan, fallback ke default dan hapus ?user
+        setActiveAccount(0);
+      }
+    }
+  } catch {}
 };

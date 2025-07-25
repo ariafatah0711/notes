@@ -62,7 +62,7 @@ export default function Editor({ folderName, gistId, fileName, content, onSave, 
   };
 
   return (
-    <div className="w-full bg-white shadow-lg rounded-xl p-6 mt-6 flex flex-col gap-4">
+    <div className="w-full bg-white shadow-lg rounded-xl p-6 mt-6 flex flex-col gap-4 min-h-[70vh]">
       <div className="flex items-center justify-between border-b pb-2 mb-4">
         <div>
           <span className="font-bold text-lg text-blue-700">{folderName}/{fileName}</span>
@@ -72,7 +72,7 @@ export default function Editor({ folderName, gistId, fileName, content, onSave, 
       </div>
       <textarea
         id="text_gist"
-        className="w-full min-h-[200px] bg-gray-50 border border-gray-300 rounded-lg p-4 font-mono text-base focus:ring-2 focus:ring-blue-400 resize-vertical"
+        className="w-full flex-1 min-h-[400px] max-h-[60vh] bg-gray-50 border border-gray-300 rounded-lg p-4 font-mono text-base focus:ring-2 focus:ring-blue-400 resize-vertical overflow-y-auto"
         style={{
           whiteSpace: 'pre-wrap',
           wordBreak: 'break-word',
@@ -114,20 +114,6 @@ export default function Editor({ folderName, gistId, fileName, content, onSave, 
       <div className="text-xs text-gray-400 mt-1 flex justify-between">
         <span>Characters: {value.length}</span>
         <span>Ctrl+S to save, Esc to close</span>
-      </div>
-      {/* Details Preview (accordion) */}
-      <div className="mt-4">
-        <button
-          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-semibold focus:outline-none"
-          onClick={() => setShowDetailsPreview((prev) => !prev)}
-        >
-          <span>{showDetailsPreview ? '▼' : '▶'} Details Preview</span>
-        </button>
-        {showDetailsPreview && (
-          <div id="details-preview" className="mt-2 bg-gray-100 border border-gray-300 rounded-lg p-4 font-mono text-base whitespace-pre-wrap break-words shadow-inner overflow-y-auto" style={{ maxHeight: '300px' }}>
-            {(previewContent || value) ? (previewContent || value) : <span className="text-gray-400">(File kosong)</span>}
-          </div>
-        )}
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 /* react */
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { AiOutlineFileText, AiOutlineAppstoreAdd, AiOutlineDelete, AiOutlineHome, AiOutlineRight } from "react-icons/ai";
 import { useFileContext } from "../hooks/useFileContext";
 import { fetchGist, updateGist } from "../services/api";
@@ -22,6 +22,7 @@ import {
    handleEdit,
    handleSave
 } from "../handlers/fileActions";
+import { getActiveAccountIndex, getActiveAccount, isWriteModeForUser } from "../utils/auth";
 
 export default function FolderPage() {
   const {
@@ -136,20 +137,29 @@ export default function FolderPage() {
       <Breadcrumb folderName={folderName} currentFile={currentFile} navigate={navigate} />
       {/* Jika currentFile ada, tampilkan Editor, jika tidak tampilkan FileList dan tombol */}
       {currentFile && currentGist?.files?.[currentFile] ? (
-        <Editor
-          folderName={folderName}
-          gistId={currentGist.id}
-          fileName={currentFile}
-          content={fileContent}
-          onSave={(content) => handleSave(content, { currentGist, currentFile, setFileContent, reload })}
-          onPreview={(value) => handlePreview(value)}
-          onClose={() => {
-            setCurrentFile("");
-            navigate(".", { replace: true });
-          }}
-          onEdit={(fileName) => handleEdit(fileName, { id: currentGist?.id, navigate, reload })}
-          onDeleteFile={() => handleDeleteFile({ currentGist, currentFile, setCurrentFile, navigate, reload })}
-        />
+        isWriteModeForUser(getActiveAccountIndex(), getActiveAccount()?.password) ? (
+          <Editor
+            folderName={folderName}
+            gistId={currentGist.id}
+            fileName={currentFile}
+            content={fileContent}
+            onSave={(content) => handleSave(content, { currentGist, currentFile, setFileContent, reload })}
+            onPreview={(value) => handlePreview(value)}
+            onClose={() => {
+              setCurrentFile("");
+              navigate(".", { replace: true });
+            }}
+            onEdit={(fileName) => handleEdit(fileName, { id: currentGist?.id, navigate, reload })}
+            onDeleteFile={() => handleDeleteFile({ currentGist, currentFile, setCurrentFile, navigate, reload })}
+          />
+        ) : (
+          <PreviewReadOnly
+            folderName={folderName}
+            currentFile={currentFile}
+            fileContent={fileContent}
+            onClose={() => { setCurrentFile(""); navigate(".", { replace: true }); }}
+          />
+        )
       ) : (
         <>
           <div className="flex flex-wrap gap-4 justify-left pb-4">
@@ -204,6 +214,35 @@ export default function FolderPage() {
           )}
         </>
       )}
+    </div>
+  );
+}
+
+function PreviewReadOnly({ folderName, currentFile, fileContent, onClose }) {
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  return (
+    <div className="w-full bg-white shadow-lg rounded-xl p-6 mt-6 flex flex-col gap-4 min-h-[70vh]">
+      <div className="flex items-center justify-between border-b pb-2 mb-4">
+        <div>
+          <span className="font-bold text-lg text-blue-700">{folderName}/{currentFile}</span>
+          <span className="ml-2 text-xs text-gray-400">({fileContent.length} chars)</span>
+        </div>
+        <button onClick={onClose} className="text-red-500 hover:text-red-700 text-2xl" title="Tutup">✖</button>
+      </div>
+      <pre className="w-full flex-1 min-h-[400px] max-h-[60vh] bg-gray-50 border border-gray-300 rounded-lg p-4 font-mono text-base whitespace-pre-wrap break-words overflow-x-auto overflow-y-auto" style={{resize: 'vertical'}}>{fileContent || "(File kosong)"}</pre>
+      <div className="text-xs text-gray-400 mt-1 flex justify-between">
+        <span>Characters: {fileContent.length}</span>
+        <span>Hanya mode baca (aktifkan Write Mode untuk edit)</span>
+      </div>
     </div>
   );
 }

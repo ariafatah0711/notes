@@ -3,8 +3,14 @@ import Home from "./pages/Home";
 import Navbar from "./components/Navbar";
 import FolderPage from "./pages/FolderPage";
 import NotFound from "./components/NotFound";
+import { setActiveAccountByQuery } from "./utils/auth";
+import React from "react";
 
 function App() {
+  // Panggil saat mount
+  React.useEffect(() => {
+    setActiveAccountByQuery();
+  }, []);
   return (
     <Router>
       {/* <Navbar /> */}
